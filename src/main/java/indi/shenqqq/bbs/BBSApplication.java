@@ -1,13 +1,13 @@
-package io.shenqqq.bbs;
+package indi.shenqqq.bbs;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BbsApplication {
+public class BBSApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(BbsApplication.class, args);
+        SpringApplication.run(BBSApplication.class, args);
     }
 
 }

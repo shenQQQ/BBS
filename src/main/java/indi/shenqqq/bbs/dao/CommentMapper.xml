@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="indi.shenqqq.bbs.dao.CommentMapper">
+
+    <select id="selectByUserId" resultType="map">
+        select c.*, u.username as topicUsername, uu.username as commentUsername, a.title, a.id as topicId
+        from comment c
+                 left join article a on a.id = c.article_id
+                 left join user u on a.user_id = u.id
+                 left join user uu on c.user_id = uu.id
+        where c.user_id = #{userId}
+        order by a.in_time desc
+    </select>
+
+</mapper>

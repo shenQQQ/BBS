@@ -1,4 +1,4 @@
-package io.shenqqq.bbs;
+package indi.shenqqq.bbs;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

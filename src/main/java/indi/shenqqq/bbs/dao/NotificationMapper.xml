@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="indi.shenqqq.bbs.dao.NotificationMapper">
+
+    <!--    <select id="countToday" resultType="integer">-->
+    <!--        select count(1)-->
+    <!--        from user-->
+    <!--        where in_time between curdate() and date_add(curdate(), interval 1 day)-->
+    <!--    </select>-->
+
+    <select id="selectByUserId" resultType="map">
+        select n.*, uu.username, uu.avatar, a.title, a.id as topicId
+        from notification n
+        left join user u on u.id = n.target_user_id
+        left join user uu on uu.id = n.user_id
+        left join article a on a.id = n.article_id
+        where n.target_user_id = #{userId} and n.`read` = #{read}
+        <if test="limit &gt; 0">
+            limit #{limit}
+        </if>
+    </select>
+
+</mapper>
