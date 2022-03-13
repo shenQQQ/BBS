@@ -51,4 +51,9 @@ public class ArticleServiceTest {
     public void selectAllTest(){
         System.out.println(articleService.selectAll(1, 5).getRecords());
     }
+
+    @Test
+    public void searchTest(){
+        System.out.println(articleService.search(1, 5, "动").getRecords());
+    }
 }

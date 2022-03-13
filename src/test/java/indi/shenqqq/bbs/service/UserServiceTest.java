@@ -30,7 +30,6 @@ public class UserServiceTest {
         example.setAvatar("http://shenqqq.top:8080/static/upload/avatar/root/avatar.jpeg?v=452096");
         example.setEmail("1017706039@qq.com");
         example.setBio("一个兴趣使然的英雄");
-        example.setScore(100);
         example.setToken("ef431efc-dd8c-4909-a8d3-2034e61a8e5c");
     }
 
@@ -66,7 +65,6 @@ public class UserServiceTest {
         user.setAvatar("http://shenqqq.top:8081/static/upload/avatar/root/avatar.jpeg?v=452096");
         user.setEmail("1017706038@qq.com");
         user.setBio("两个兴趣使然的英雄");
-        user.setScore(99);
         User result = userService.addUser(user.getUsername(),user.getPassword(),user.getAvatar(),user.getEmail(),user.getBio());
         assert(user.getUsername().equals(result.getUsername()));
         userService.deleteUser(result.getId());

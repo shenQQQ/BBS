@@ -2,6 +2,7 @@ package indi.shenqqq.bbs.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import indi.shenqqq.bbs.dao.UserMapper;
+import indi.shenqqq.bbs.model.Article;
 import indi.shenqqq.bbs.model.User;
 import indi.shenqqq.bbs.service.IUserService;
 import org.springframework.stereotype.Service;
@@ -86,6 +87,12 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public void save(User user) {
+        userMapper.insert(user);
+    }
+
+
+    @Override
     public void deleteUser(Integer id) {
         userMapper.deleteById(id);
     }
@@ -93,5 +100,11 @@ public class UserService implements IUserService {
     @Override
     public void update(User user) {
         userMapper.updateById(user);
+    }
+
+    @Override
+    public int countAll() {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        return userMapper.selectCount(wrapper);
     }
 }

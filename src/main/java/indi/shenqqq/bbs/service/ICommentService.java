@@ -23,6 +23,8 @@ public interface ICommentService {
 
     void save(Comment comment, Article article, User user);
 
+    void save(int userId, int articleId, String content, Article article, User user);
+
     Comment selectById(Integer id);
 
     void update(Comment comment);

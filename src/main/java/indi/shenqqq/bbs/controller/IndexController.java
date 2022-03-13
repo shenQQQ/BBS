@@ -25,9 +25,8 @@ public class IndexController {
 
     @GetMapping({"/", "/index"})
     public Result index(@RequestParam(defaultValue = "1") Integer pageNo,
-            @RequestParam(defaultValue = "5") Integer pageSize) {
+            @RequestParam(defaultValue = "15") Integer pageSize) {
         Page<Map<String, Object>> page = articleService.selectAll(pageNo,pageSize);
-        log.info("获得了界面：{}" ,page.getRecords());
         return Result.success(page);
     }
 }

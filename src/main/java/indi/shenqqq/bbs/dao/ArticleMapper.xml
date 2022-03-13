@@ -16,4 +16,14 @@
         where a.user_id = #{userId}
         order by a.in_time desc
     </select>
+
+    <select id="search" resultType="map">
+        select a.*, u.username, u.avatar
+        from article a
+        left join user u on a.user_id = u.id
+        <where>
+            a.title like concat(concat('%',#{keyword}),'%') or a.content like concat(concat('%',#{keyword}),'%')
+        </where>
+        order by a.in_time desc
+    </select>
 </mapper>

@@ -20,6 +20,7 @@ public class Article implements Serializable {
     private Integer id;
     private String title;
     private String content;
+    private String headImg;
     private Date inTime;
     private Date modifyTime;
     private Integer userId;

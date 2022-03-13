@@ -27,7 +27,6 @@ public class User implements Serializable {
     private String avatar;
     private String email;
     private String bio;
-    private Integer score;
     private Date inTime;
     private String token;
 

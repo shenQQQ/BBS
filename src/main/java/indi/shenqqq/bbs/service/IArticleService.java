@@ -22,12 +22,16 @@ public interface IArticleService {
 
     Page<Map<String, Object>> selectByUserId(int userId, int pageNo, int pageSize);
 
-    void save(String title, String content, User user);
+    void save(String title, String content, String headImg, User user);
 
     void update(Article article);
 
     void delete(Article article);
 
     void deleteByUserId(int userId);
+
+    int countAll();
+
+    Page<Map<String, Object>> search(Integer pageNo, Integer pageSize, String keyword);
 
 }

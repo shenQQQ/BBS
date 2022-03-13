@@ -6,14 +6,10 @@ import indi.shenqqq.bbs.dao.ArticleMapper;
 import indi.shenqqq.bbs.model.Article;
 import indi.shenqqq.bbs.model.User;
 import indi.shenqqq.bbs.service.IArticleService;
-import org.apache.ibatis.annotations.Mapper;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -58,10 +54,11 @@ public class ArticleService implements IArticleService {
     }
 
     @Override
-    public void save(String title, String content, User user) {
+    public void save(String title, String content, String headImg, User user) {
         Article article = new Article();
         article.setTitle(title);
         article.setContent(content);
+        article.setHeadImg(headImg);
         article.setInTime(new Date());
         article.setUserId(user.getId());
         article.setTop(false);
@@ -70,9 +67,6 @@ public class ArticleService implements IArticleService {
         article.setCollectCount(0);
         article.setCommentCount(0);
         articleMapper.insert(article);
-        // 增加用户积分
-        user.setScore(user.getScore() + 10);
-        userService.update(user);
     }
 
     @Override
@@ -87,10 +81,6 @@ public class ArticleService implements IArticleService {
         // 删除相关收藏
         // 删除相关的评论;
         // 将话题对应的标签 topicCount -1
-        // 减去用户积分
-        User user = userService.selectById(article.getUserId());
-        user.setScore(user.getScore() - 10);
-        userService.update(user);
         articleMapper.deleteById(id);
     }
 
@@ -99,5 +89,18 @@ public class ArticleService implements IArticleService {
         QueryWrapper<Article> wrapper = new QueryWrapper<>();
         wrapper.lambda().eq(Article::getUserId, userId);
         articleMapper.delete(wrapper);
+    }
+
+    @Override
+    public int countAll() {
+        QueryWrapper<Article> wrapper = new QueryWrapper<>();
+        return articleMapper.selectCount(wrapper);
+    }
+
+
+    @Override
+    public Page<Map<String, Object>> search(Integer pageNo, Integer pageSize, String keyword) {
+        Page<Map<String, Object>> page = new Page<>(pageNo, pageSize);
+        return articleMapper.search(page, keyword);
     }
 }

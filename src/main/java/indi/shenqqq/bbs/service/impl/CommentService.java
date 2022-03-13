@@ -10,9 +10,11 @@ import indi.shenqqq.bbs.service.IArticleService;
 import indi.shenqqq.bbs.service.ICommentService;
 import indi.shenqqq.bbs.service.IUserService;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +23,7 @@ import java.util.Map;
  * @Date 2022/3/2 15:18
  * @Description XX
  */
+@Service
 public class CommentService implements ICommentService {
 
     @Resource
@@ -61,13 +64,23 @@ public class CommentService implements ICommentService {
         article.setCommentCount(article.getCommentCount() + 1);
         articleService.update(article);
 
-        // 增加用户积分
-        user.setScore(user.getScore() + 5);
-        userService.update(user);
-
         // 通知
         // 给评论的作者发通知
         // 给话题作者发通知
+    }
+
+    @Override
+    public void save(int userId, int articleId, String content, Article article, User user) {
+        Comment comment = new Comment();
+        comment.setArticleId(articleId);
+        comment.setUserId(userId);
+        comment.setContent(content);
+        comment.setInTime(new Date());
+        commentMapper.insert(comment);
+        // 话题的评论数+1
+        article.setCommentCount(article.getCommentCount() + 1);
+        articleService.update(article);
+
     }
 
     @Override
@@ -87,10 +100,6 @@ public class CommentService implements ICommentService {
             Article article = articleService.selectById(comment.getArticleId());
             article.setCommentCount(article.getCommentCount() - 1);
             articleService.update(article);
-            // 减去用户积分
-            User user = userService.selectById(comment.getUserId());
-            user.setScore(user.getScore() - 5);
-            userService.update(user);
             // 删除评论
             commentMapper.deleteById(comment.getId());
         }

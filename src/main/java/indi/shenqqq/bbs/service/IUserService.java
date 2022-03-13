@@ -28,7 +28,11 @@ public interface IUserService {
                  String email,
                  String bio);
 
+    void save(User user);
+
     void deleteUser(Integer id);
 
     void update(User user);
+
+    int countAll();
 }
