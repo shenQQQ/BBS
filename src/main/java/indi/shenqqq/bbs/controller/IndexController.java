@@ -34,6 +34,7 @@ import static indi.shenqqq.bbs.utils.Result.success;
 @RequestMapping("/")
 @CrossOrigin(origins = "*")
 public class IndexController extends BaseController {
+
     @Autowired
     IArticleService articleService;
     @Autowired
@@ -57,7 +58,6 @@ public class IndexController extends BaseController {
         String username = body.get("username").toString();
         String password = body.get("password").toString();
         String email = body.get("email").toString();
-
         //todo:利用session实现一次性验证码
         if (org.springframework.util.StringUtils.isEmpty(username)) return Results.USERNAME_EMPTY;
         if (org.springframework.util.StringUtils.isEmpty(password)) return Results.PASSWORD_EMPTY;
@@ -67,7 +67,6 @@ public class IndexController extends BaseController {
         if (!org.springframework.util.StringUtils.isEmpty(request.getHeader("Authorization"))) return Results.NO_LOGOUT;
         if (userService.selectByUsername(username) == null) return Results.USERNAME_ALREADY_EXISTS;
         if (userService.selectByEmail(email) == null) return Results.EMAIL_ALREADY_EXISTS;
-
         //todo:生成默认头像
         User user = userService.addUser(username, password, null, email, null);
         return doUserStorage(session, user);
@@ -77,40 +76,23 @@ public class IndexController extends BaseController {
     @PostMapping("/login")
     public Result login(@RequestBody Map<String, Object> body, HttpSession session) {
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
-
         String username = body.get("username").toString();
         String password = body.get("password").toString();
-        try {
-            ApiAssert.notEmpty(username, ApiExceptions.USERNAME_EMPTY);
-            ApiAssert.notEmpty(password, ApiExceptions.PASSWORD_EMPTY);
-        } catch (ApiException e) {
-            return Result.error(e.getCode(), e.getMessage());
-        }
         User user = userService.selectByUsername(username);
+        if (org.springframework.util.StringUtils.isEmpty(username)) return Results.USERNAME_EMPTY;
+        if (org.springframework.util.StringUtils.isEmpty(password)) return Results.PASSWORD_EMPTY;
         if (!org.springframework.util.StringUtils.isEmpty(request.getHeader("Authorization"))) return Results.NO_LOGOUT;
-        try {
-            ApiAssert.notNull(user, ApiExceptions.USER_DONT_EXISTS);
-            ApiAssert.isTrue(password.equals(user.getPassword()), ApiExceptions.PASSWORD_WRONG);
-        } catch (ApiException e) {
-            return Result.error(e.getCode(), e.getMessage());
-        }
+        if (user == null) return Results.USER_DONT_EXISTS;
+        if (password.equals(user.getPassword())) return Results.PASSWORD_WRONG;
         return this.doUserStorage(session, user);
     }
 
     @PostMapping("/token")
     public Result loginToken(@RequestBody String token, HttpSession session) {
         token = token.substring(0, token.length() - 1);
-        try {
-            ApiAssert.notEmpty(token, ApiExceptions.TOKEN_EMPTY);
-        } catch (ApiException e) {
-            return Result.error(e.getCode(), e.getMessage());
-        }
         User user = userService.selectByToken(token);
-        try {
-            ApiAssert.notNull(user, ApiExceptions.STATE_INVALID);
-        } catch (ApiException e) {
-            return Result.error(e.getCode(), e.getMessage());
-        }
+        if(org.springframework.util.StringUtils.isEmpty(token)) Result.error();
+        if(user == null) return Results.STATE_INVALID;
         return this.doUserStorage(session, user);
     }
 
@@ -157,8 +139,10 @@ public class IndexController extends BaseController {
                     // 将最新的用户信息更新在session里
                     if (session != null) session.setAttribute("_user", user1);
                 }
-            } else if (type.equalsIgnoreCase("topic")) { // 发帖上传图片
-                url = fileUtil.upload(file, null, "topic/" + user.getUsername());
+            } else if (type.equalsIgnoreCase("article")) { // 发帖上传图片
+                url = fileUtil.upload(file, null, "article/" + user.getUsername());
+            } else if (type.equalsIgnoreCase("headImg")) { // 发帖上传图片
+                url = fileUtil.upload(file, null, "article/headImg/" + user.getUsername());
             } else if (type.equalsIgnoreCase("video")) { // 视频上传
                 url = fileUtil.upload(file, null, "video/" + user.getUsername());
             } else {
@@ -171,23 +155,13 @@ public class IndexController extends BaseController {
             }
             urls.add(url);
         }
+        if(errors.size() != 0){
+            resultMap.put("urls", urls);
+            resultMap.put("errors", errors);
+            return Results.UPLOAD_ERROR;
+        }
         resultMap.put("urls", urls);
-        resultMap.put("errors", errors);
         return success(resultMap);
     }
 
-    public User getUserFromToken(boolean required) {
-        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder
-                .getRequestAttributes())).getRequest();
-        String token = request.getHeader("Authorization");
-        if (required) {
-            ApiAssert.notEmpty(token, ApiExceptions.TOKEN_EMPTY);
-            User user = userService.selectByToken(token);
-            ApiAssert.notNull(user, ApiExceptions.STATE_INVALID);
-            return user;
-        } else {
-            if (org.springframework.util.StringUtils.isEmpty(token)) return null;
-            return userService.selectByToken(token);
-        }
-    }
 }

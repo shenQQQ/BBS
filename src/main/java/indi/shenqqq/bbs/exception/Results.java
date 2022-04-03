@@ -30,4 +30,6 @@ public class Results {
     public static Result CONTENT_EMPTY = Result.error(316,"文章内容不能为空");
     public static Result HEADIMG_EMPTY = Result.error(317,"文章头图不能为空");
     public static Result NO_LOGOUT = Result.error(318,"请先注销");
+
+    public static Result UPLOAD_ERROR = Result.error(319,"文件上传错误");
 }

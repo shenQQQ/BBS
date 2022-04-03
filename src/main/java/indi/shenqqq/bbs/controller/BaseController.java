@@ -2,7 +2,6 @@ package indi.shenqqq.bbs.controller;
 
 import indi.shenqqq.bbs.exception.ApiAssert;
 import indi.shenqqq.bbs.exception.ApiExceptions;
-import indi.shenqqq.bbs.exception.Results;
 import indi.shenqqq.bbs.model.User;
 import indi.shenqqq.bbs.service.IUserService;
 import indi.shenqqq.bbs.utils.CookieUtils;
