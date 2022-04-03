@@ -1,6 +1,7 @@
 package indi.shenqqq.bbs.service;
 
 import indi.shenqqq.bbs.model.Article;
+import indi.shenqqq.bbs.model.Collect;
 import indi.shenqqq.bbs.model.User;
 import indi.shenqqq.bbs.utils.*;
 import org.junit.Test;
@@ -33,6 +34,8 @@ public class GenerateRandomData {
     private IArticleService articleService;
     @Resource
     private ICommentService commentService;
+    @Resource
+    private ICollectService collectService;
 
     @Test
     public void generateRandomUser() {
@@ -120,6 +123,28 @@ public class GenerateRandomData {
             }
             String content = RandomArticleUtils.generatorRandomArticle(user.getUsername(), RandomValueUtils.getNum(5,50));
             commentService.save(userId,articleId,content,article,user);
+        }
+    }
+    
+    @Test
+    public void generateRandomCollect(){
+        int num = 800;
+        for (int i = 0; i < num; i++) {
+            int articleId = RandomValueUtils.getNum(1,articleService.countAll());
+            int userId = RandomValueUtils.getNum(1,userService.countAll());
+            User user = userService.selectById(userId);
+            Article article = articleService.selectById(articleId);
+            if(article == null || user == null){
+                i--;
+                continue;
+            }
+            //去重
+            Collect collect = collectService.selectByUserIdAndArticleId(userId,articleId);
+            if(collect != null){
+                i--;
+                continue;
+            }
+            collectService.save(articleId,user);
         }
     }
 }

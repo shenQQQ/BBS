@@ -15,7 +15,7 @@ import java.util.Map;
 public interface ICollectService {
 
     //查找某人是不是收藏过这篇文章
-    Collect selectByUserIdAndArticleId(String userId, String articleId);
+    Collect selectByUserIdAndArticleId(Integer userId, Integer articleId);
 
     List<Collect> selectByArticleId(Integer articleId);
 
@@ -25,7 +25,7 @@ public interface ICollectService {
 
     void delete(Integer articleId, Integer userId);
 
-    void deleteByArticleId(String articleId);
+    void deleteByArticleId(Integer articleId);
 
     void deleteByUserId(Integer userId);
 

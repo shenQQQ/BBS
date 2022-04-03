@@ -30,7 +30,7 @@ public class CollectService implements ICollectService {
     private ArticleService articleService;
 
     @Override
-    public Collect selectByUserIdAndArticleId(String userId, String articleId) {
+    public Collect selectByUserIdAndArticleId(Integer userId, Integer articleId) {
         QueryWrapper<Collect> wrapper = new QueryWrapper<>();
         wrapper.lambda().eq(Collect::getArticleId, articleId).eq(Collect::getUserId, userId);
         List<Collect> collects = collectMapper.selectList(wrapper);
@@ -77,7 +77,7 @@ public class CollectService implements ICollectService {
     }
 
     @Override
-    public void deleteByArticleId(String articleId) {
+    public void deleteByArticleId(Integer articleId) {
         QueryWrapper<Collect> wrapper = new QueryWrapper<>();
         wrapper.lambda().eq(Collect::getArticleId, articleId);
         collectMapper.delete(wrapper);

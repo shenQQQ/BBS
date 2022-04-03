@@ -21,28 +21,28 @@ import java.util.Map;
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
-    private IUserService userService;
-    @Autowired
-    private IArticleService articleService;
-
-    @GetMapping("/{username}")
-    public Result index(@PathVariable String username) {
-        User user = userService.selectByUsername(username);
-        return Result.success(user);
-    }
-
-    @GetMapping("/{username}/articles")
-    public Result articles(@PathVariable String username,
-                           @RequestParam(defaultValue = "1") Integer pageNo,
-                           @RequestParam(defaultValue = "5")Integer pageSize){
-        User user = userService.selectByUsername(username);
-        if(user == null){
-            return Result.error("用户不存在");
-        }
-        Page<Map<String,Object>> page = articleService.selectByUserId(user.getId(), pageNo, pageSize);
-        return Result.success(page);
-    }
+//    @Autowired
+//    private IUserService userService;
+//    @Autowired
+//    private IArticleService articleService;
+//
+//    @GetMapping("/{username}")
+//    public Result index(@PathVariable String username) {
+//        User user = userService.selectByUsername(username);
+//        return Result.success(user);
+//    }
+//
+//    @GetMapping("/{username}/articles")
+//    public Result articles(@PathVariable String username,
+//                           @RequestParam(defaultValue = "1") Integer pageNo,
+//                           @RequestParam(defaultValue = "5")Integer pageSize){
+//        User user = userService.selectByUsername(username);
+//        if(user == null){
+//            return Result.error("用户不存在");
+//        }
+//        Page<Map<String,Object>> page = articleService.selectByUserId(user.getId(), pageNo, pageSize);
+//        return Result.success(page);
+//    }
 
 
 }
