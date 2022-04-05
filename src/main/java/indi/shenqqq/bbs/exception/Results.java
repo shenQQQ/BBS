@@ -11,7 +11,7 @@ public class Results {
     public static Result USERNAME_EMPTY = Result.error(301,"用户名为空");
     public static Result PASSWORD_EMPTY = Result.error(302,"密码为空");
     public static Result EMAIL_EMPTY = Result.error(303,"邮箱地址为空");
-    public static Result PASSWORD_FORMAT_WRONG = Result.error(304,"用户名只能为a-z,A-Z,0-9组合且2-16位");
+    public static Result PASSWORD_FORMAT_WRONG = Result.error(304,"密码只能为a-z,A-Z,0-9组合且6-32位");
     public static Result EMAIL_FORMAT_WRONG = Result.error(305,"请输入正确的邮箱地址");
 
     public static Result USERNAME_ALREADY_EXISTS = Result.error(306,"用户名重复");
@@ -32,4 +32,9 @@ public class Results {
     public static Result NO_LOGOUT = Result.error(318,"请先注销");
 
     public static Result UPLOAD_ERROR = Result.error(319,"文件上传错误");
+    public static Result TOO_MANY_FILE = Result.error(320,"上传文件过多");
+
+    public static Result OLD_PASSWORD_WRONG = Result.error(321,"原密码错误");
+    public static Result COMMENT_EMPTY = Result.error(322,"请输入评论");
+    public static Result NO_RIGHT_MODIFY_ARTICLE = Result.error(323,"这不是你的文章");
 }

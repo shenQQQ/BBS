@@ -10,6 +10,7 @@ import indi.shenqqq.bbs.model.User;
 import indi.shenqqq.bbs.service.IArticleService;
 import indi.shenqqq.bbs.service.IUserService;
 import indi.shenqqq.bbs.utils.*;
+import io.swagger.annotations.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ import static indi.shenqqq.bbs.utils.Result.success;
 public class IndexController extends BaseController {
 
     @Autowired
-    IArticleService articleService;
+    private IArticleService articleService;
     @Autowired
     private IUserService userService;
 
@@ -62,11 +63,11 @@ public class IndexController extends BaseController {
         if (org.springframework.util.StringUtils.isEmpty(username)) return Results.USERNAME_EMPTY;
         if (org.springframework.util.StringUtils.isEmpty(password)) return Results.PASSWORD_EMPTY;
         if (org.springframework.util.StringUtils.isEmpty(email)) return Results.EMAIL_EMPTY;
-        if (StringUtils.check(username, StringUtils.USERNAMEREGEX)) return Results.PASSWORD_FORMAT_WRONG;
-        if (StringUtils.check(email, StringUtils.EMAILREGEX)) return Results.EMAIL_FORMAT_WRONG;
+        if (!StringUtils.check(password, StringUtils.PASSWORDREGEX)) return Results.PASSWORD_FORMAT_WRONG;
+        if (!StringUtils.check(email, StringUtils.EMAILREGEX)) return Results.EMAIL_FORMAT_WRONG;
         if (!org.springframework.util.StringUtils.isEmpty(request.getHeader("Authorization"))) return Results.NO_LOGOUT;
-        if (userService.selectByUsername(username) == null) return Results.USERNAME_ALREADY_EXISTS;
-        if (userService.selectByEmail(email) == null) return Results.EMAIL_ALREADY_EXISTS;
+        if (userService.selectByUsername(username) != null) return Results.USERNAME_ALREADY_EXISTS;
+        if (userService.selectByEmail(email) != null) return Results.EMAIL_ALREADY_EXISTS;
         //todo:生成默认头像
         User user = userService.addUser(username, password, null, email, null);
         return doUserStorage(session, user);
@@ -83,7 +84,7 @@ public class IndexController extends BaseController {
         if (org.springframework.util.StringUtils.isEmpty(password)) return Results.PASSWORD_EMPTY;
         if (!org.springframework.util.StringUtils.isEmpty(request.getHeader("Authorization"))) return Results.NO_LOGOUT;
         if (user == null) return Results.USER_DONT_EXISTS;
-        if (password.equals(user.getPassword())) return Results.PASSWORD_WRONG;
+        if (!password.equals(user.getPassword())) return Results.PASSWORD_WRONG;
         return this.doUserStorage(session, user);
     }
 
@@ -103,28 +104,25 @@ public class IndexController extends BaseController {
         User user = getUserFromToken(true);
         Map<String, Object> resultMap = new HashMap<>();
         List<String> urls = new ArrayList<>();
-        List<String> errors = new ArrayList<>();
+        long uploadVideoSizeLimit = Config.MAX_UPLOAD_VIDEO_FILE_SIZE;
+        long uploadImageSizeLimit = Config.MAX_UPLOAD_IMAGE_FILE_SIZE;
+        if(files.length > Config.MAX_UPLOAD_FILE_NUM) return Results.TOO_MANY_FILE;
         for (int i = 0; i < files.length; i++) {
             String url;
             MultipartFile file = files[i];
             String suffix = "." + Objects.requireNonNull(file.getContentType()).split("/")[1];
             if (!Arrays.asList(".jpg", ".png", ".gif", ".jpeg", ".mp4").contains(suffix.toLowerCase())) {
-                errors.add("第[" + (i + 1) + "]个文件异常: " + "文件格式不正确");
-                continue;
+                return Result.error(319,"第[" + (i + 1) + "]个文件异常: " + "文件格式不正确,请确保上传文件是jpg,png,gif,jpeg,mp4格式");
             }
             long size = file.getSize();
             // 根据不同上传类型，对文件大小做校验
             if (type.equalsIgnoreCase("video")) {
-                long uploadVideoSizeLimit = 5;
                 if (size > uploadVideoSizeLimit * 1024 * 1024) {
-                    errors.add("第[" + (i + 1) + "]个文件异常: " + "文件太大了，请上传文件大小在 " + uploadVideoSizeLimit + "MB 以内");
-                    continue;
+                    return Result.error(319,"第[" + (i + 1) + "]个文件异常: " + "文件太大了，请上传文件大小在 " + uploadVideoSizeLimit + "MB 以内");
                 }
             } else {
-                long uploadImageSizeLimit = 5;
                 if (size > uploadImageSizeLimit * 1024 * 1024) {
-                    errors.add("第[" + (i + 1) + "]个文件异常: " + "文件太大了，请上传文件大小在 " + uploadImageSizeLimit + "MB 以内");
-                    continue;
+                    return Result.error(319,"第[" + (i + 1) + "]个文件异常: " + "文件太大了，请上传文件大小在 " + uploadImageSizeLimit + "MB 以内");
                 }
             }
             if (type.equalsIgnoreCase("avatar")) { // 上传头像
@@ -142,23 +140,16 @@ public class IndexController extends BaseController {
             } else if (type.equalsIgnoreCase("article")) { // 发帖上传图片
                 url = fileUtil.upload(file, null, "article/" + user.getUsername());
             } else if (type.equalsIgnoreCase("headImg")) { // 发帖上传图片
-                url = fileUtil.upload(file, null, "article/headImg/" + user.getUsername());
+                url = fileUtil.upload(file, null, "article/" + user.getUsername() + "/headImg/");
             } else if (type.equalsIgnoreCase("video")) { // 视频上传
                 url = fileUtil.upload(file, null, "video/" + user.getUsername());
             } else {
-                errors.add("第[" + (i + 1) + "]个文件异常: " + "上传图片类型不在处理范围内");
-                continue;
+                return Result.error(319,"第[" + (i + 1) + "]个文件异常: " + "上传文件类型不在处理范围内");
             }
             if (url == null) {
-                errors.add("第[" + (i + 1) + "]个文件异常: " + "上传的文件不存在或者上传过程发生了错误");
-                continue;
+                return Result.error(319,"第[" + (i + 1) + "]个文件异常: " + "上传的文件不存在或者上传过程发生了错误");
             }
             urls.add(url);
-        }
-        if(errors.size() != 0){
-            resultMap.put("urls", urls);
-            resultMap.put("errors", errors);
-            return Results.UPLOAD_ERROR;
         }
         resultMap.put("urls", urls);
         return success(resultMap);

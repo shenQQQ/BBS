@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -101,11 +102,41 @@ public class ArticleController extends BaseController {
         String title = body.get("title");
         String content = body.get("content");
         String headImg = body.get("headImg");
-        if(StringUtils.isEmpty(title)) return Results.TITLE_EMPTY;
-        if(StringUtils.isEmpty(content)) return Results.CONTENT_EMPTY;
-        if(StringUtils.isEmpty(headImg)) return Results.HEADIMG_EMPTY;
-        if(articleService.selectByTitle(title) != null) return Results.TITLE_REPEAT;
+        if (StringUtils.isEmpty(title)) return Results.TITLE_EMPTY;
+        if (StringUtils.isEmpty(content)) return Results.CONTENT_EMPTY;
+        if (StringUtils.isEmpty(headImg)) return Results.HEADIMG_EMPTY;
+        if (articleService.selectByTitle(title) != null) return Results.TITLE_REPEAT;
         articleService.save(title, content, headImg, getUserFromToken(true));
+        return success();
+    }
+
+    @PostMapping("/update/{articleId}")
+    public Result update(@RequestBody Map<String, String> body, @PathVariable Integer articleId) {
+        User user = getUserFromToken(true);
+        String title = body.get("title");
+        String content = body.get("content");
+        String headImg = body.get("headImg");
+        Article article = articleService.selectById(articleId);
+        if (StringUtils.isEmpty(title)) return Results.TITLE_EMPTY;
+        if (StringUtils.isEmpty(content)) return Results.CONTENT_EMPTY;
+        if (StringUtils.isEmpty(headImg)) return Results.HEADIMG_EMPTY;
+        if (article == null) return Results.ARTICLE_NOT_EXIST;
+        if (article.getUserId() != user.getId()) return Results.NO_RIGHT_MODIFY_ARTICLE;
+        article.setHeadImg(headImg);
+        article.setTitle(title);
+        article.setContent(content);
+        article.setModifyTime(new Date());
+        articleService.update(article);
+        return success();
+    }
+
+    @DeleteMapping("/{id}")
+    public Result deleteArticleById(@PathVariable Integer id) {
+        User user = getUserFromToken(true);
+        Article article = articleService.selectById(id);
+        if (article == null) return Results.ARTICLE_NOT_EXIST;
+        if (article.getUserId() != user.getId()) return Results.NO_RIGHT_MODIFY_ARTICLE;
+        articleService.delete(article);
         return success();
     }
 

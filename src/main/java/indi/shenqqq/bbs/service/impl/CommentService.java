@@ -80,7 +80,6 @@ public class CommentService implements ICommentService {
         // 话题的评论数+1
         article.setCommentCount(article.getCommentCount() + 1);
         articleService.update(article);
-
     }
 
     @Override

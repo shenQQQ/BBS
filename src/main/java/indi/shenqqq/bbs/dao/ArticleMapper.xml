@@ -2,11 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="indi.shenqqq.bbs.dao.ArticleMapper">
 
+<!--    order by a.comment_count desc, a.in_time desc-->
     <select id="selectAll" resultType="map">
         select a.*, u.username, u.avatar
         from article a
                  left join user u on a.user_id = u.id
-        order by a.comment_count desc, a.in_time desc
+        order by a.in_time desc
     </select>
 
     <select id="selectByUserId" resultType="map">

@@ -11,4 +11,7 @@ public class Config {
     public static int USER_PAGE_ARTICLE_NUM = 15;
     public static int SEARCH_PAGE_ARTICLE_NUM = 15;
 
+    public static int MAX_UPLOAD_FILE_NUM = 3;
+    public static int MAX_UPLOAD_VIDEO_FILE_SIZE = 3;     //单位mb
+    public static int MAX_UPLOAD_IMAGE_FILE_SIZE = 3;
 }
