@@ -85,8 +85,8 @@ public class IndexController extends BaseController {
     }
 
     @GetMapping("/tag/{id}")
-    public Result topicsByTagName(@RequestParam(defaultValue = "1") Integer pageNo, @PathVariable String id) {
-        Tag tag = tagService.selectByName(id);
+    public Result articleByTagName(@RequestParam(defaultValue = "1") Integer pageNo, @PathVariable int id) {
+        Tag tag = tagService.selectById(id);
         if (tag == null) {
             return Results.TAG_NOT_EXIST;
         } else {

@@ -93,13 +93,6 @@ public class ArticleService implements IArticleService {
     }
 
     @Override
-    public void deleteByUserId(int userId) {
-        QueryWrapper<Article> wrapper = new QueryWrapper<>();
-        wrapper.lambda().eq(Article::getUserId, userId);
-        articleMapper.delete(wrapper);
-    }
-
-    @Override
     public int countAll() {
         QueryWrapper<Article> wrapper = new QueryWrapper<>();
         return articleMapper.selectCount(wrapper);

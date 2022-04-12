@@ -78,9 +78,12 @@ public class TagService implements ITagService {
     @Override
     public List<Tag> insertTag(String newTags) {
         // 使用工具将字符串按逗号分隔成数组
+        System.out.println(newTags);
         String[] _tags = StringUtils.commaDelimitedListToStringArray(newTags);
         List<Tag> tagList = new ArrayList<>();
         for (String _tag : _tags) {
+            _tag = _tag.trim();
+            if(StringUtils.isEmpty(_tag)){continue;}
             Tag tag = this.selectByName(_tag);
             if (tag == null) {
                 tag = new Tag();
@@ -90,6 +93,7 @@ public class TagService implements ITagService {
             }
             tagList.add(tag);
         }
+        System.out.println(tagList);
         return tagList;
     }
 

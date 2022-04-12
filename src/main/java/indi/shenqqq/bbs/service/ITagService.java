@@ -21,7 +21,7 @@ public interface ITagService {
 
     List<Tag> selectByIds(List<Integer> ids);
 
-    List<Tag> selectByArticleId(Integer topicId);
+    List<Tag> selectByArticleId(Integer articleId);
 
     List<Tag> insertTag(String newTags);
 

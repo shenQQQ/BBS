@@ -5,13 +5,11 @@ import indi.shenqqq.bbs.config.Config;
 import indi.shenqqq.bbs.exception.Results;
 import indi.shenqqq.bbs.model.Article;
 import indi.shenqqq.bbs.model.Comment;
+import indi.shenqqq.bbs.model.Tag;
 import indi.shenqqq.bbs.model.User;
 import indi.shenqqq.bbs.model.vo.ArticleDetail;
 import indi.shenqqq.bbs.model.vo.CommentVo;
-import indi.shenqqq.bbs.service.IArticleService;
-import indi.shenqqq.bbs.service.ICollectService;
-import indi.shenqqq.bbs.service.ICommentService;
-import indi.shenqqq.bbs.service.IUserService;
+import indi.shenqqq.bbs.service.*;
 import indi.shenqqq.bbs.model.dto.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +42,10 @@ public class ArticleController extends BaseController {
     ICommentService commentService;
     @Autowired
     ICollectService collectService;
+    @Autowired
+    ITagService tagService;
+    @Autowired
+    IArticleTagService articleTagService;
 
     @RequestMapping("/index")
     public Result index(@RequestParam(defaultValue = "1") Integer pageNo,
@@ -66,7 +68,8 @@ public class ArticleController extends BaseController {
             User comment_author = userService.selectById(comment.getUserId());
             commentVos.add(new CommentVo(comment, comment_author.getAvatar(), comment_author.getUsername()));
         }
-        ArticleDetail articleDetail = new ArticleDetail(article, user, commentVos);
+        List<Tag> tagList = tagService.selectByArticleId(article.getId());
+        ArticleDetail articleDetail = new ArticleDetail(article, user, commentVos,tagList);
         long endTime=System.currentTimeMillis();
         long Time=endTime-starTime;
         System.out.println(Time);
@@ -108,11 +111,13 @@ public class ArticleController extends BaseController {
         String title = body.get("title");
         String content = body.get("content");
         String headImg = body.get("headImg");
+        String tag = body.get("tag");
         if (StringUtils.isEmpty(title)) return Results.TITLE_EMPTY;
         if (StringUtils.isEmpty(content)) return Results.CONTENT_EMPTY;
         if (StringUtils.isEmpty(headImg)) return Results.HEADIMG_EMPTY;
         if (articleService.selectByTitle(title) != null) return Results.TITLE_REPEAT;
         articleService.save(title, content, headImg, getUserFromToken(true));
+        articleTagService.insertArticleTag(articleService.selectByTitle(title).getId(),tagService.insertTag(tag));
         return success();
     }
 
@@ -122,6 +127,8 @@ public class ArticleController extends BaseController {
         String title = body.get("title");
         String content = body.get("content");
         String headImg = body.get("headImg");
+        String tag = body.get("tag");
+        System.out.println(tag);
         Article article = articleService.selectById(articleId);
         if (StringUtils.isEmpty(title)) return Results.TITLE_EMPTY;
         if (StringUtils.isEmpty(content)) return Results.CONTENT_EMPTY;
@@ -133,6 +140,7 @@ public class ArticleController extends BaseController {
         article.setContent(content);
         article.setModifyTime(new Date());
         articleService.update(article);
+        articleTagService.updateTagByArticleId(articleId,tagService.insertTag(tag));
         return success();
     }
 

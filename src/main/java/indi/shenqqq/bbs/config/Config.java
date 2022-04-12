@@ -15,7 +15,7 @@ public class Config {
     public static String PROJECT_VERSION = "1.0";
 
     public static int INDEX_PAGE_ARTICLE_NUM = 15;
-    public static int INDEX_TAG_NUM = 4; //首页展示最热标签数
+    public static int INDEX_TAG_NUM = 5; //首页展示最热标签数
     public static int COLLECT_PAGE_ARTICLE_NUM = 15;
     public static int USER_PAGE_ARTICLE_NUM = 15;
     public static int SEARCH_PAGE_ARTICLE_NUM = 15;

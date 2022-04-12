@@ -28,8 +28,6 @@ public interface IArticleService {
 
     void delete(Article article);
 
-    void deleteByUserId(int userId);
-
     int countAll();
 
     Page<Map<String, Object>> search(Integer pageNo, Integer pageSize, String keyword);

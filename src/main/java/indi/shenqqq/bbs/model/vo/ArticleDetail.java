@@ -1,6 +1,7 @@
 package indi.shenqqq.bbs.model.vo;
 
 import indi.shenqqq.bbs.model.Article;
+import indi.shenqqq.bbs.model.Tag;
 import indi.shenqqq.bbs.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,7 +22,7 @@ import java.util.List;
 public class ArticleDetail implements Serializable {
     private static final long serialVersionID = 1L;
 
-    public ArticleDetail(Article article, User user,List<CommentVo> comments){
+    public ArticleDetail(Article article, User user,List<CommentVo> comments,List<Tag> tagList){
         this.id = article.getId();
         this.userId = article.getUserId();
         this.title = article.getTitle();
@@ -37,6 +38,7 @@ public class ArticleDetail implements Serializable {
         this.username = user.getUsername();
         this.avatar = user.getAvatar();
         this.comments = comments;
+        this.list = tagList;
     }
 
     private Integer id;
@@ -46,6 +48,7 @@ public class ArticleDetail implements Serializable {
     private Date inTime;
     private Date modifyTime;
     private Integer userId;
+    private List<Tag> list;
     // 评论数
     private Integer commentCount;
     // 收藏数

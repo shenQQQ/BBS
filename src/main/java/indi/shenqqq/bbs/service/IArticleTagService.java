@@ -18,4 +18,6 @@ public interface IArticleTagService {
     void insertArticleTag(Integer articleId, List<Tag> tagList);
 
     void deleteByArticleId(Integer id);
+
+    void updateTagByArticleId(Integer articleId, List<Tag> tagList);
 }
