@@ -5,7 +5,9 @@ import indi.shenqqq.bbs.dao.UserMapper;
 import indi.shenqqq.bbs.model.Article;
 import indi.shenqqq.bbs.model.User;
 import indi.shenqqq.bbs.service.IUserService;
+import indi.shenqqq.bbs.utils.SpringContextUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -18,6 +20,7 @@ import java.util.UUID;
  */
 //todo 注册新用户密码未加密
 @Service
+@Transactional
 public class UserService implements IUserService {
 
     @Resource
@@ -88,17 +91,21 @@ public class UserService implements IUserService {
 
     @Override
     public void save(User user) {
+        SpringContextUtils.getBean(UserService.class).delRedisUser(user);
         userMapper.insert(user);
     }
 
 
     @Override
     public void deleteUser(Integer id) {
+        User user = this.selectById(id);
+        SpringContextUtils.getBean(UserService.class).delRedisUser(user);
         userMapper.deleteById(id);
     }
 
     @Override
     public void update(User user) {
+        SpringContextUtils.getBean(UserService.class).delRedisUser(user);
         userMapper.updateById(user);
     }
 
@@ -106,5 +113,11 @@ public class UserService implements IUserService {
     public int countAll() {
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         return userMapper.selectCount(wrapper);
+    }
+
+    // 删除redis缓存
+    @Override
+    public void delRedisUser(User user) {
+
     }
 }

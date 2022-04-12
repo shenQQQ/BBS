@@ -1,19 +1,15 @@
 package indi.shenqqq.bbs.controller;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import indi.shenqqq.bbs.exception.ApiException;
 import indi.shenqqq.bbs.exception.Results;
-import indi.shenqqq.bbs.model.Article;
 import indi.shenqqq.bbs.model.User;
-import indi.shenqqq.bbs.service.IArticleService;
 import indi.shenqqq.bbs.service.IUserService;
-import indi.shenqqq.bbs.service.impl.UserService;
-import indi.shenqqq.bbs.utils.Result;
+import indi.shenqqq.bbs.model.dto.Result;
 import indi.shenqqq.bbs.utils.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
+import javax.annotation.Resource;
 import java.util.Map;
 
 /**
@@ -24,9 +20,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/user")
 @CrossOrigin
+@Slf4j
 public class UserController extends BaseController {
 
-    @Autowired
+    @Resource
     private IUserService userService;
 
     @GetMapping("/token")
@@ -41,8 +38,7 @@ public class UserController extends BaseController {
     }
 
     @PostMapping("/update")
-    public Result updateUser(@RequestBody Map<String, Object> body) throws InterruptedException {
-        Thread.sleep(1000);
+    public Result updateUser(@RequestBody Map<String, Object> body){
         User user1 = getUserFromToken(true);
         String username = body.get("username").toString();
         String bio = body.get("bio").toString();
@@ -59,8 +55,7 @@ public class UserController extends BaseController {
     }
 
     @PostMapping("/updatepwd")
-    public Result updatePassword(@RequestBody Map<String, Object> body) throws InterruptedException {
-        Thread.sleep(1000);
+    public Result updatePassword(@RequestBody Map<String, Object> body){
         User user1 = getUserFromToken(true);
         String oldPassword = body.get("old_password").toString();
         String password = body.get("password").toString();

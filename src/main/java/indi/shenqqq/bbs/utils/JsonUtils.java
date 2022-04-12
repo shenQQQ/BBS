@@ -3,6 +3,7 @@ package indi.shenqqq.bbs.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,9 +14,8 @@ import java.util.List;
  * @Date 2022/3/2 12:04
  * @Description XX
  */
+@Slf4j
 public class JsonUtils {
-
-    private final static Logger log = LoggerFactory.getLogger(JsonUtils.class);
 
     private static ObjectMapper objectMapper = new ObjectMapper();
 

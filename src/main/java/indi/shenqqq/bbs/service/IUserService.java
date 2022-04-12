@@ -35,4 +35,6 @@ public interface IUserService {
     void update(User user);
 
     int countAll();
+
+    void delRedisUser(User user);
 }

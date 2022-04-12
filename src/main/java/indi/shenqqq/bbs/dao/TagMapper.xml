@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="indi.shenqqq.bbs.dao.TagMapper">
+    <select id="selectArticleByTagId" resultType="map">
+        select a.*, u.username, u.avatar
+        from article_tag at
+                 left join article a on at.article_id = a.id
+                 left join tag tag on at.tag_id = tag.id
+                 left join user u on a.user_id = u.id
+        where tag.id = #{tagId}
+    </select>
+
+    <select id="selectTagByArticleCount" resultType="indi.shenqqq.bbs.model.Tag">
+        SELECT tag.*
+        FROM article_tag
+                 AT LEFT JOIN tag ON tag.id = at.tag_id
+        GROUP BY tag_id
+        ORDER BY COUNT(*) DESC
+        limit #{topTagNum}
+    </select>
+</mapper>

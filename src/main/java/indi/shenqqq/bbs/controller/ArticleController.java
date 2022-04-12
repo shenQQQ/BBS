@@ -12,7 +12,8 @@ import indi.shenqqq.bbs.service.IArticleService;
 import indi.shenqqq.bbs.service.ICollectService;
 import indi.shenqqq.bbs.service.ICommentService;
 import indi.shenqqq.bbs.service.IUserService;
-import indi.shenqqq.bbs.utils.Result;
+import indi.shenqqq.bbs.model.dto.Result;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static indi.shenqqq.bbs.utils.Result.success;
+import static indi.shenqqq.bbs.model.dto.Result.success;
 
 /**
  * @Author Shen Qi
@@ -32,6 +33,7 @@ import static indi.shenqqq.bbs.utils.Result.success;
 @RestController
 @RequestMapping("/article")
 @CrossOrigin
+@Slf4j
 public class ArticleController extends BaseController {
 
     @Autowired
@@ -53,6 +55,7 @@ public class ArticleController extends BaseController {
 
     @GetMapping("/{id}")
     public Result getArticleById(@PathVariable Integer id) {
+        long starTime=System.currentTimeMillis();
         Article article = articleService.selectById(id);
         if (article == null) return Results.ARTICLE_NOT_EXIST;
         User user = userService.selectById(article.getUserId());
@@ -64,6 +67,9 @@ public class ArticleController extends BaseController {
             commentVos.add(new CommentVo(comment, comment_author.getAvatar(), comment_author.getUsername()));
         }
         ArticleDetail articleDetail = new ArticleDetail(article, user, commentVos);
+        long endTime=System.currentTimeMillis();
+        long Time=endTime-starTime;
+        System.out.println(Time);
         return success(articleDetail);
     }
 
@@ -121,7 +127,7 @@ public class ArticleController extends BaseController {
         if (StringUtils.isEmpty(content)) return Results.CONTENT_EMPTY;
         if (StringUtils.isEmpty(headImg)) return Results.HEADIMG_EMPTY;
         if (article == null) return Results.ARTICLE_NOT_EXIST;
-        if (article.getUserId() != user.getId()) return Results.NO_RIGHT_MODIFY_ARTICLE;
+        if (!article.getUserId().equals(user.getId())) return Results.NO_RIGHT_MODIFY_ARTICLE;
         article.setHeadImg(headImg);
         article.setTitle(title);
         article.setContent(content);
@@ -135,7 +141,7 @@ public class ArticleController extends BaseController {
         User user = getUserFromToken(true);
         Article article = articleService.selectById(id);
         if (article == null) return Results.ARTICLE_NOT_EXIST;
-        if (article.getUserId() != user.getId()) return Results.NO_RIGHT_MODIFY_ARTICLE;
+        if (!article.getUserId().equals(user.getId())) return Results.NO_RIGHT_MODIFY_ARTICLE;
         articleService.delete(article);
         return success();
     }

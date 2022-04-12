@@ -5,7 +5,8 @@ import indi.shenqqq.bbs.exception.ApiExceptions;
 import indi.shenqqq.bbs.model.User;
 import indi.shenqqq.bbs.service.IUserService;
 import indi.shenqqq.bbs.utils.CookieUtils;
-import indi.shenqqq.bbs.utils.Result;
+import indi.shenqqq.bbs.utils.IPUtils;
+import indi.shenqqq.bbs.model.dto.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -17,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static indi.shenqqq.bbs.utils.Result.success;
+import static indi.shenqqq.bbs.model.dto.Result.success;
 
 /**
  * @Author Shen Qi
@@ -74,5 +75,11 @@ public class BaseController {
         map.put("user", user);
         map.put("token", user.getToken());
         return success(map);
+    }
+
+    public String getIp() {
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder
+                .getRequestAttributes())).getRequest();
+        return IPUtils.getIpAddr(request);
     }
 }

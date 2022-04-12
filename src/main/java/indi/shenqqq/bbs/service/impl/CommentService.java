@@ -11,6 +11,7 @@ import indi.shenqqq.bbs.service.ICommentService;
 import indi.shenqqq.bbs.service.IUserService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
@@ -24,6 +25,7 @@ import java.util.Map;
  * @Description XX
  */
 @Service
+@Transactional
 public class CommentService implements ICommentService {
 
     @Resource
@@ -67,19 +69,6 @@ public class CommentService implements ICommentService {
         // 通知
         // 给评论的作者发通知
         // 给话题作者发通知
-    }
-
-    @Override
-    public void save(int userId, int articleId, String content, Article article, User user) {
-        Comment comment = new Comment();
-        comment.setArticleId(articleId);
-        comment.setUserId(userId);
-        comment.setContent(content);
-        comment.setInTime(new Date());
-        commentMapper.insert(comment);
-        // 话题的评论数+1
-        article.setCommentCount(article.getCommentCount() + 1);
-        articleService.update(article);
     }
 
     @Override

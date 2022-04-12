@@ -2,17 +2,14 @@ package indi.shenqqq.bbs.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import indi.shenqqq.bbs.config.Config;
-import indi.shenqqq.bbs.exception.ApiAssert;
-import indi.shenqqq.bbs.exception.ApiException;
-import indi.shenqqq.bbs.exception.ApiExceptions;
 import indi.shenqqq.bbs.exception.Results;
+import indi.shenqqq.bbs.model.Tag;
 import indi.shenqqq.bbs.model.User;
-import indi.shenqqq.bbs.service.IArticleService;
+import indi.shenqqq.bbs.model.dto.Result;
+import indi.shenqqq.bbs.service.ITagService;
 import indi.shenqqq.bbs.service.IUserService;
 import indi.shenqqq.bbs.utils.*;
-import io.swagger.annotations.Api;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -24,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.*;
 
-import static indi.shenqqq.bbs.utils.Result.success;
+import static indi.shenqqq.bbs.model.dto.Result.success;
 
 /**
  * @Author Shen Qi
@@ -34,23 +31,13 @@ import static indi.shenqqq.bbs.utils.Result.success;
 @RestController
 @RequestMapping("/")
 @CrossOrigin(origins = "*")
+@Slf4j
 public class IndexController extends BaseController {
 
     @Autowired
-    private IArticleService articleService;
-    @Autowired
     private IUserService userService;
-
-
-    private Logger log = LoggerFactory.getLogger(this.getClass());
-
-    @GetMapping({"/", "/index"})
-    public Result index(@RequestParam(defaultValue = "1") Integer pageNo,
-                        @RequestParam(defaultValue = "0") Integer pageSize) {
-        pageSize = pageSize == 0 ? Config.INDEX_PAGE_ARTICLE_NUM : pageSize;
-        Page<Map<String, Object>> page = articleService.selectAll(pageNo, pageSize);
-        return success(page);
-    }
+    @Resource
+    private ITagService tagService;
 
     @PostMapping("/signup")
     public Result signup(@RequestBody Map<String, Object> body, HttpSession session) {
@@ -92,9 +79,23 @@ public class IndexController extends BaseController {
     public Result loginToken(@RequestBody String token, HttpSession session) {
         token = token.substring(0, token.length() - 1);
         User user = userService.selectByToken(token);
-        if(org.springframework.util.StringUtils.isEmpty(token)) Result.error();
-        if(user == null) return Results.STATE_INVALID;
+        if (org.springframework.util.StringUtils.isEmpty(token)) Result.error();
+        if (user == null) return Results.STATE_INVALID;
         return this.doUserStorage(session, user);
+    }
+
+    @GetMapping("/tag/{id}")
+    public Result topicsByTagName(@RequestParam(defaultValue = "1") Integer pageNo, @PathVariable String id) {
+        Tag tag = tagService.selectByName(id);
+        if (tag == null) {
+            return Results.TAG_NOT_EXIST;
+        } else {
+            Page<Map<String, Object>> iPage = tagService.selectArticleByTagId(tag.getId(), pageNo);
+            Map<String, Object> result = new HashMap<>();
+            result.put("tag", tag);
+            result.put("page", iPage);
+            return success(result);
+        }
     }
 
     @PostMapping("/upload")
@@ -106,35 +107,31 @@ public class IndexController extends BaseController {
         List<String> urls = new ArrayList<>();
         long uploadVideoSizeLimit = Config.MAX_UPLOAD_VIDEO_FILE_SIZE;
         long uploadImageSizeLimit = Config.MAX_UPLOAD_IMAGE_FILE_SIZE;
-        if(files.length > Config.MAX_UPLOAD_FILE_NUM) return Results.TOO_MANY_FILE;
+        if (files.length > Config.MAX_UPLOAD_FILE_NUM) return Results.TOO_MANY_FILE;
         for (int i = 0; i < files.length; i++) {
             String url;
             MultipartFile file = files[i];
             String suffix = "." + Objects.requireNonNull(file.getContentType()).split("/")[1];
             if (!Arrays.asList(".jpg", ".png", ".gif", ".jpeg", ".mp4").contains(suffix.toLowerCase())) {
-                return Result.error(319,"第[" + (i + 1) + "]个文件异常: " + "文件格式不正确,请确保上传文件是jpg,png,gif,jpeg,mp4格式");
+                return Result.error(319, "第[" + (i + 1) + "]个文件异常: " + "文件格式不正确,请确保上传文件是jpg,png,gif,jpeg,mp4格式");
             }
             long size = file.getSize();
-            // 根据不同上传类型，对文件大小做校验
             if (type.equalsIgnoreCase("video")) {
                 if (size > uploadVideoSizeLimit * 1024 * 1024) {
-                    return Result.error(319,"第[" + (i + 1) + "]个文件异常: " + "文件太大了，请上传文件大小在 " + uploadVideoSizeLimit + "MB 以内");
+                    return Result.error(319, "第[" + (i + 1) + "]个文件异常: " + "文件太大了，请上传文件大小在 " + uploadVideoSizeLimit + "MB 以内");
                 }
             } else {
                 if (size > uploadImageSizeLimit * 1024 * 1024) {
-                    return Result.error(319,"第[" + (i + 1) + "]个文件异常: " + "文件太大了，请上传文件大小在 " + uploadImageSizeLimit + "MB 以内");
+                    return Result.error(319, "第[" + (i + 1) + "]个文件异常: " + "文件太大了，请上传文件大小在 " + uploadImageSizeLimit + "MB 以内");
                 }
             }
             if (type.equalsIgnoreCase("avatar")) { // 上传头像
                 // 拿到上传后访问的url
                 url = fileUtil.upload(file, "avatar", "avatar/" + user.getUsername());
                 if (url != null) {
-                    // 查询当前用户的最新信息
                     User user1 = userService.selectById(user.getId());
                     user1.setAvatar(url);
-                    // 保存用户新的头像
                     userService.update(user1);
-                    // 将最新的用户信息更新在session里
                     if (session != null) session.setAttribute("_user", user1);
                 }
             } else if (type.equalsIgnoreCase("article")) { // 发帖上传图片
@@ -144,10 +141,10 @@ public class IndexController extends BaseController {
             } else if (type.equalsIgnoreCase("video")) { // 视频上传
                 url = fileUtil.upload(file, null, "video/" + user.getUsername());
             } else {
-                return Result.error(319,"第[" + (i + 1) + "]个文件异常: " + "上传文件类型不在处理范围内");
+                return Result.error(319, "第[" + (i + 1) + "]个文件异常: " + "上传文件类型不在处理范围内");
             }
             if (url == null) {
-                return Result.error(319,"第[" + (i + 1) + "]个文件异常: " + "上传的文件不存在或者上传过程发生了错误");
+                return Result.error(319, "第[" + (i + 1) + "]个文件异常: " + "上传的文件不存在或者上传过程发生了错误");
             }
             urls.add(url);
         }
@@ -155,4 +152,17 @@ public class IndexController extends BaseController {
         return success(resultMap);
     }
 
+    @GetMapping("/config")
+    public Result config() {
+        List<Tag> tagList = tagService.selectTagByArticleCount(Config.INDEX_TAG_NUM);
+        List<Map<String,String>> list = new LinkedList<>();
+        for (Tag tag : tagList) {
+            Map<String,String> map = new HashMap<>();
+            map.put("key","/tag/" + tag.getId());
+            map.put("title" ,tag.getName());
+            list.add(map);
+        }
+        System.out.println(JsonUtils.objectToJson(list));
+        return success(list);
+    }
 }

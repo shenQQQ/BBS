@@ -1,6 +1,6 @@
 package indi.shenqqq.bbs.exception;
 
-import indi.shenqqq.bbs.utils.Result;
+import indi.shenqqq.bbs.model.dto.Result;
 
 /**
  * @Author Shen Qi
@@ -37,4 +37,6 @@ public class Results {
     public static Result OLD_PASSWORD_WRONG = Result.error(321,"原密码错误");
     public static Result COMMENT_EMPTY = Result.error(322,"请输入评论");
     public static Result NO_RIGHT_MODIFY_ARTICLE = Result.error(323,"这不是你的文章");
+
+    public static Result TAG_NOT_EXIST = Result.error(324,"标签不存在");
 }

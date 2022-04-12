@@ -3,7 +3,6 @@ package indi.shenqqq.bbs.dao;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import indi.shenqqq.bbs.model.Article;
-import indi.shenqqq.bbs.model.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

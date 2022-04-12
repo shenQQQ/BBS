@@ -2,7 +2,9 @@ package indi.shenqqq.bbs.model.vo;
 
 import indi.shenqqq.bbs.model.Article;
 import indi.shenqqq.bbs.model.User;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -15,6 +17,7 @@ import java.util.List;
  */
 
 @Data
+@AllArgsConstructor
 public class ArticleDetail implements Serializable {
     private static final long serialVersionID = 1L;
 

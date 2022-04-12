@@ -7,7 +7,8 @@ import indi.shenqqq.bbs.model.Collect;
 import indi.shenqqq.bbs.model.User;
 import indi.shenqqq.bbs.service.IArticleService;
 import indi.shenqqq.bbs.service.ICollectService;
-import indi.shenqqq.bbs.utils.Result;
+import indi.shenqqq.bbs.model.dto.Result;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/collect")
 @CrossOrigin
+@Slf4j
 public class CollectController extends BaseController {
 
     @Autowired
@@ -27,8 +29,8 @@ public class CollectController extends BaseController {
     ICollectService collectService;
 
     @GetMapping("/{articleId}")
-    public Result getArticleByUserId(@PathVariable Integer articleId) {
-        User user = null;
+    public Result isCollectByArticleIdAndUserId(@PathVariable Integer articleId) {
+        User user;
         try {
             user = getUserFromToken(true);
         } catch (ApiException e) {
@@ -41,7 +43,7 @@ public class CollectController extends BaseController {
     }
 
     @PostMapping("/{articleId}")
-    public Result addCollect(@PathVariable Integer articleId) throws InterruptedException {
+    public Result addCollect(@PathVariable Integer articleId){
         User user = getUserFromToken(true);
         Article article = articleService.selectById(articleId);
         if (article == null) return Results.ARTICLE_NOT_EXIST;

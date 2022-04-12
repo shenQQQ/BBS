@@ -1,34 +1,36 @@
-package indi.shenqqq.bbs.service;
+package indi.shenqqq.bbs.controller;
 
 import indi.shenqqq.bbs.model.Article;
 import indi.shenqqq.bbs.model.Collect;
 import indi.shenqqq.bbs.model.Comment;
 import indi.shenqqq.bbs.model.User;
+import indi.shenqqq.bbs.model.dto.Result;
+import indi.shenqqq.bbs.service.IArticleService;
+import indi.shenqqq.bbs.service.ICollectService;
+import indi.shenqqq.bbs.service.ICommentService;
+import indi.shenqqq.bbs.service.IUserService;
 import indi.shenqqq.bbs.utils.*;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Date;
-import java.util.Random;
 
 /**
  * @Author Shen Qi
- * @Date 2022/3/8 10:31
+ * @Date 2022/4/6 13:13
  * @Description XX
  */
-@RunWith(SpringRunner.class)
-@SpringBootTest
-public class GenerateRandomData {
-
+@RestController
+@RequestMapping("/simulation")
+@CrossOrigin
+@Slf4j
+public class SimulationController {
     @Resource
     private IUserService userService;
     @Resource
@@ -38,9 +40,8 @@ public class GenerateRandomData {
     @Resource
     private ICollectService collectService;
 
-    @Test
-    public void generateRandomUser() {
-        int num = 98;
+    @GetMapping("/user/{num}")
+    public Result generateRandomUser(@PathVariable Integer num) {
         int min = 1;
         int max = 100;
         for (int i = 0; i < num; i++) {
@@ -55,18 +56,12 @@ public class GenerateRandomData {
             userService.save(user);
             System.out.println(user);
         }
+        return Result.success();
     }
 
-    @Test
-    public void generateRandomImg() throws IOException {
-        System.out.println(RandomImgUtils.getTitleImg("哈哈哈哈哈", 640, 360, "img.png"));
-
-    }
-
-    @Test
-    public void generateRandomArticle() {
-        int num = 200;
-        int min = 2;
+    @GetMapping("/article/{num}")
+    public Result generateRandomArticle(@PathVariable Integer num) {
+        int min = 1;
         int max = userService.countAll();
         FileUtils fileUtils = new FileUtils();
         for (int i = 0; i < num; i++) {
@@ -82,7 +77,6 @@ public class GenerateRandomData {
                 i--;
                 continue;
             }
-
 
             String content = RandomArticleUtils.generatorRandomArticle(title, RandomValueUtils.getNum(100, 1000));
             String filename = RandomImgUtils.getTitleImg(title, 640, 360, title);
@@ -108,11 +102,11 @@ public class GenerateRandomData {
                 file.delete();
             }
         }
+        return Result.success();
     }
 
-    @Test
-    public void generateRandomComments(){
-        int num = 5;
+    @GetMapping("/comment/{num}")
+    public Result generateRandomComments(@PathVariable Integer num){
         for (int i = 0; i < num; i++) {
             int articleId = RandomValueUtils.getNum(1,articleService.countAll());
             int userId = RandomValueUtils.getNum(1,userService.countAll());
@@ -125,11 +119,11 @@ public class GenerateRandomData {
             String content = RandomArticleUtils.generatorRandomArticle(user.getUsername(), RandomValueUtils.getNum(5,50));
             commentService.save(new Comment(userId,articleId,content),article,user);
         }
+        return Result.success();
     }
-    
-    @Test
-    public void generateRandomCollect(){
-        int num = 800;
+
+    @GetMapping("/collect/{num}")
+    public Result generateRandomCollect(@PathVariable Integer num){
         for (int i = 0; i < num; i++) {
             int articleId = RandomValueUtils.getNum(1,articleService.countAll());
             int userId = RandomValueUtils.getNum(1,userService.countAll());
@@ -147,5 +141,6 @@ public class GenerateRandomData {
             }
             collectService.save(articleId,user);
         }
+        return Result.success();
     }
 }

@@ -9,6 +9,7 @@ import indi.shenqqq.bbs.model.Collect;
 import indi.shenqqq.bbs.model.User;
 import indi.shenqqq.bbs.service.ICollectService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
@@ -22,6 +23,7 @@ import java.util.Map;
  * @Description XX
  */
 @Service
+@Transactional
 public class CollectService implements ICollectService {
 
     @Resource

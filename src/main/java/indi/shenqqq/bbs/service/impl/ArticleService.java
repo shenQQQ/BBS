@@ -7,6 +7,7 @@ import indi.shenqqq.bbs.model.Article;
 import indi.shenqqq.bbs.model.User;
 import indi.shenqqq.bbs.service.IArticleService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -18,12 +19,19 @@ import java.util.Map;
  * @Description XX
  */
 @Service
+@Transactional
 public class ArticleService implements IArticleService {
 
     @Resource
     private ArticleMapper articleMapper;
     @Resource
     private UserService userService;
+    @Resource
+    private CommentService commentService;
+    @Resource
+    private CollectService collectService;
+    @Resource
+    private ArticleTagService articleTagService;
 
     @Override
     public Article selectById(int id) {
@@ -78,9 +86,9 @@ public class ArticleService implements IArticleService {
     public void delete(Article article) {
         Integer id = article.getId();
         // 删除相关通知
-        // 删除相关收藏
-        // 删除相关的评论;
-        // 将话题对应的标签 topicCount -1
+        articleTagService.selectByArticleId(article.getId());
+        collectService.deleteByArticleId(article.getId());
+        commentService.deleteByArticleId(article.getId());
         articleMapper.deleteById(id);
     }
 

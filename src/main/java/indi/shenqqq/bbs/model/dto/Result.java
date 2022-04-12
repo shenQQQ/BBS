@@ -1,5 +1,6 @@
-package indi.shenqqq.bbs.utils;
+package indi.shenqqq.bbs.model.dto;
 
+import indi.shenqqq.bbs.utils.JsonUtils;
 import lombok.Data;
 
 import javax.servlet.http.HttpServletResponse;
