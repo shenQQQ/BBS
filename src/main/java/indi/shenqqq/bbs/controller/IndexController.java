@@ -6,6 +6,8 @@ import indi.shenqqq.bbs.exception.Results;
 import indi.shenqqq.bbs.model.Tag;
 import indi.shenqqq.bbs.model.User;
 import indi.shenqqq.bbs.model.dto.Result;
+import indi.shenqqq.bbs.service.IArticleService;
+import indi.shenqqq.bbs.service.IArticleTagService;
 import indi.shenqqq.bbs.service.ITagService;
 import indi.shenqqq.bbs.service.IUserService;
 import indi.shenqqq.bbs.utils.*;
@@ -38,6 +40,8 @@ public class IndexController extends BaseController {
     private IUserService userService;
     @Resource
     private ITagService tagService;
+    @Resource
+    private IArticleService articleService;
 
     @PostMapping("/signup")
     public Result signup(@RequestBody Map<String, Object> body, HttpSession session) {
@@ -82,20 +86,6 @@ public class IndexController extends BaseController {
         if (org.springframework.util.StringUtils.isEmpty(token)) Result.error();
         if (user == null) return Results.STATE_INVALID;
         return this.doUserStorage(session, user);
-    }
-
-    @GetMapping("/tag/{id}")
-    public Result articleByTagName(@RequestParam(defaultValue = "1") Integer pageNo, @PathVariable int id) {
-        Tag tag = tagService.selectById(id);
-        if (tag == null) {
-            return Results.TAG_NOT_EXIST;
-        } else {
-            Page<Map<String, Object>> iPage = tagService.selectArticleByTagId(tag.getId(), pageNo);
-            Map<String, Object> result = new HashMap<>();
-            result.put("tag", tag);
-            result.put("page", iPage);
-            return success(result);
-        }
     }
 
     @PostMapping("/upload")
@@ -164,5 +154,32 @@ public class IndexController extends BaseController {
         }
         System.out.println(JsonUtils.objectToJson(list));
         return success(list);
+    }
+
+    @GetMapping("/tag/{id}")
+    public Result articleByTagName(@RequestParam(defaultValue = "1") Integer pageNo, @PathVariable int id) {
+        Tag tag = tagService.selectById(id);
+        if (tag == null) {
+            return Results.TAG_NOT_EXIST;
+        } else {
+            Page<Map<String, Object>> iPage = tagService.selectArticleByTagId(tag.getId(), pageNo);
+            Map<String, Object> result = new HashMap<>();
+            result.put("tag", tag);
+            result.put("page", iPage);
+            return success(result);
+        }
+    }
+
+    @GetMapping("/user/{userId}")
+    public Result getArticleByUserId(@PathVariable Integer userId,
+                                     @RequestParam(defaultValue = "1") Integer pageNo,
+                                     @RequestParam(defaultValue = "0") Integer pageSize) {
+        pageSize = pageSize == 0 ? Config.USER_PAGE_ARTICLE_NUM : pageSize;
+        if (userService.selectById(userId) == null) return Results.USER_DONT_EXISTS;
+        User user = userService.selectById(userId);
+        Map<String ,Object> result = new HashMap<>();
+        result.put("user",user);
+        result.put("article",articleService.selectByUserId(userId, pageNo, pageSize));
+        return success(result);
     }
 }
