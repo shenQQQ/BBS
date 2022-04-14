@@ -18,6 +18,19 @@ import redis.clients.jedis.params.SetParams;
 @Slf4j
 public class RedisService {
 
+    static {
+        String host = Config.REDIS_HOST;
+        String port = Config.REDIS_PORT;
+        String password = StringUtils.isEmpty(Config.REDIS_PASSWORD) ? null : Config.REDIS_PASSWORD;
+        String database = Config.REDIS_DATABASE;
+        String timeout = Config.REDIS_TIMEOUT;
+
+        if (!(!StringUtils.isEmpty(host) && !StringUtils.isEmpty(port) && !StringUtils.isEmpty(database) && !StringUtils
+                .isEmpty(timeout))) {
+            log.info("redis配置信息不全或没有配置...");
+        }
+    }
+
     private JedisPool jedisPool;
 
     public void setJedis(JedisPool jedisPool) {
@@ -34,7 +47,6 @@ public class RedisService {
             String timeout = Config.REDIS_TIMEOUT;
 
             if (!this.isRedisConfig()) {
-                log.info("redis配置信息不全或没有配置...");
                 return null;
             }
             JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
