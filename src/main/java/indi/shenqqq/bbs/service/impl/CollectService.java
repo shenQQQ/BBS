@@ -7,7 +7,10 @@ import indi.shenqqq.bbs.dao.CollectMapper;
 import indi.shenqqq.bbs.model.Article;
 import indi.shenqqq.bbs.model.Collect;
 import indi.shenqqq.bbs.model.User;
+import indi.shenqqq.bbs.model.dto.WebSocketMessage;
 import indi.shenqqq.bbs.service.ICollectService;
+import indi.shenqqq.bbs.service.INotificationService;
+import indi.shenqqq.bbs.socket.WebSocket;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -30,6 +33,8 @@ public class CollectService implements ICollectService {
     private CollectMapper collectMapper;
     @Resource
     private ArticleService articleService;
+    @Resource
+    private INotificationService notificationService;
 
     @Override
     public Collect selectByUserIdAndArticleId(Integer userId, Integer articleId) {
@@ -65,6 +70,11 @@ public class CollectService implements ICollectService {
         Article article = articleService.selectById(articleId);
         article.setCollectCount(article.getCollectCount() + 1);
         articleService.update(article);
+
+        // 通知
+        notificationService.save(user.getId(), article.getUserId(), article.getId(), "COLLECT", null);
+        WebSocket.sendMessage(article.getUserId(),new WebSocketMessage("notifications", String.format("%s 收藏了你的文章 %s 快去看看吧！", user.getUsername()
+                , article.getTitle())));
     }
 
     @Override

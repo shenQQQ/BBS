@@ -57,7 +57,6 @@ public class ArticleController extends BaseController {
 
     @GetMapping("/{id}")
     public Result getArticleById(@PathVariable Integer id) {
-        long starTime=System.currentTimeMillis();
         Article article = articleService.selectById(id);
         if (article == null) return Results.ARTICLE_NOT_EXIST;
         User user = userService.selectById(article.getUserId());
@@ -70,9 +69,6 @@ public class ArticleController extends BaseController {
         }
         List<Tag> tagList = tagService.selectByArticleId(article.getId());
         ArticleDetail articleDetail = new ArticleDetail(article, user, commentVos,tagList);
-        long endTime=System.currentTimeMillis();
-        long Time=endTime-starTime;
-        System.out.println(Time);
         return success(articleDetail);
     }
 
@@ -80,7 +76,6 @@ public class ArticleController extends BaseController {
     public Result getCollectArticleByUserId(@PathVariable Integer userId,
                                             @RequestParam(defaultValue = "1") Integer pageNo,
                                             @RequestParam(defaultValue = "0") Integer pageSize) {
-
         pageSize = pageSize == 0 ? Config.COLLECT_PAGE_ARTICLE_NUM : pageSize;
         if (userService.selectById(userId) == null) return Results.USER_DONT_EXISTS;
         if (!userAuth(userId)) return Results.NO_ACCESS;
@@ -128,7 +123,6 @@ public class ArticleController extends BaseController {
         String content = body.get("content");
         String headImg = body.get("headImg");
         String tag = body.get("tag");
-        System.out.println(tag);
         Article article = articleService.selectById(articleId);
         if (StringUtils.isEmpty(title)) return Results.TITLE_EMPTY;
         if (StringUtils.isEmpty(content)) return Results.CONTENT_EMPTY;

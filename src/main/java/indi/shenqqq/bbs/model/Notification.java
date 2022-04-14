@@ -25,6 +25,6 @@ public class Notification implements Serializable {
     private String action;
     private Date inTime;
     // 是否已读
-    private Boolean read;
+    private Boolean isread;
     private String content;
 }

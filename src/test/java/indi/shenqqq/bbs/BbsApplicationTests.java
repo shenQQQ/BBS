@@ -8,7 +8,7 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.util.*;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class BbsApplicationTests {
 
     @Test

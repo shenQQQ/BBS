@@ -1,9 +1,12 @@
 package indi.shenqqq.bbs.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import indi.shenqqq.bbs.dao.NotificationMapper;
 import indi.shenqqq.bbs.model.Notification;
+import indi.shenqqq.bbs.model.dto.WebSocketMessage;
 import indi.shenqqq.bbs.service.INotificationService;
+import indi.shenqqq.bbs.socket.WebSocket;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,8 +35,16 @@ public class NotificationService implements INotificationService {
     }
 
     @Override
+    public Page<Map<String, Object>> selectAll(int pageNo, int pageSize,int userId) {
+        Page<Map<String, Object>> page = new Page<>(pageNo, pageSize);
+        page = notificationMapper.selectAll(page,userId);
+        return page;
+    }
+
+    @Override
     public void markRead(Integer userId) {
         notificationMapper.updateNotificationStatus(userId);
+        WebSocket.sendMessage(userId,new WebSocketMessage("notification_notread",0));
     }
 
     @Override
@@ -64,7 +75,7 @@ public class NotificationService implements INotificationService {
         notification.setTargetUserId(targetUserId);
         notification.setArticleId(articleId);
         notification.setInTime(new Date());
-        notification.setRead(false);
+        notification.setIsread(false);
         notificationMapper.insert(notification);
     }
 }

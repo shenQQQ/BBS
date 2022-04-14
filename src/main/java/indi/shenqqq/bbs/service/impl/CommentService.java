@@ -6,9 +6,12 @@ import indi.shenqqq.bbs.dao.CommentMapper;
 import indi.shenqqq.bbs.model.Article;
 import indi.shenqqq.bbs.model.Comment;
 import indi.shenqqq.bbs.model.User;
+import indi.shenqqq.bbs.model.dto.WebSocketMessage;
 import indi.shenqqq.bbs.service.IArticleService;
 import indi.shenqqq.bbs.service.ICommentService;
+import indi.shenqqq.bbs.service.INotificationService;
 import indi.shenqqq.bbs.service.IUserService;
+import indi.shenqqq.bbs.socket.WebSocket;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +39,8 @@ public class CommentService implements ICommentService {
     @Resource
     @Lazy
     private IUserService userService;
+    @Resource
+    private INotificationService notificationService;
 
     @Override
     public List<Comment> selectByArticleId(Integer articleId) {
@@ -61,14 +66,13 @@ public class CommentService implements ICommentService {
     @Override
     public void save(Comment comment, Article article, User user) {
         commentMapper.insert(comment);
-
         // 话题的评论数+1
         article.setCommentCount(article.getCommentCount() + 1);
         articleService.update(article);
-
         // 通知
-        // 给评论的作者发通知
-        // 给话题作者发通知
+        notificationService.save(user.getId(), article.getUserId(), article.getId(), "COMMENT", comment.getContent());
+        WebSocket.sendMessage(article.getUserId(),new WebSocketMessage("notifications", String.format("%s 评论你的文章 %s 快去看看吧！", user.getUsername()
+                , article.getTitle())));
     }
 
     @Override

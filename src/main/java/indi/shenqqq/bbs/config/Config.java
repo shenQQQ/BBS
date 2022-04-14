@@ -23,6 +23,7 @@ public class Config {
     public static int MAX_UPLOAD_VIDEO_FILE_SIZE = 3;     //单位mb
     public static int MAX_UPLOAD_IMAGE_FILE_SIZE = 3;
     public static int TAG_PAGE_SIZE = 20;
+    public static int NOTIFICATION_PAGE_SIZE = 20;
 
     public static String REDIS_HOST ;
     public static String REDIS_PORT ;

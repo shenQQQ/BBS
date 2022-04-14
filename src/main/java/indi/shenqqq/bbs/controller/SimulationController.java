@@ -5,10 +5,9 @@ import indi.shenqqq.bbs.model.Collect;
 import indi.shenqqq.bbs.model.Comment;
 import indi.shenqqq.bbs.model.User;
 import indi.shenqqq.bbs.model.dto.Result;
-import indi.shenqqq.bbs.service.IArticleService;
-import indi.shenqqq.bbs.service.ICollectService;
-import indi.shenqqq.bbs.service.ICommentService;
-import indi.shenqqq.bbs.service.IUserService;
+import indi.shenqqq.bbs.model.dto.WebSocketMessage;
+import indi.shenqqq.bbs.service.*;
+import indi.shenqqq.bbs.socket.WebSocket;
 import indi.shenqqq.bbs.utils.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mock.web.MockMultipartFile;
@@ -39,6 +38,8 @@ public class SimulationController {
     private ICommentService commentService;
     @Resource
     private ICollectService collectService;
+    @Resource
+    private INotificationService notificationService;
 
     @GetMapping("/user/{num}")
     public Result generateRandomUser(@PathVariable Integer num) {
@@ -141,6 +142,18 @@ public class SimulationController {
             }
             collectService.save(articleId,user);
         }
+        return Result.success();
+    }
+
+    @GetMapping("/send")
+    public Result sendMessageTest(){
+        WebSocket.sendMessage(1,new WebSocketMessage("hello","hello"));
+        return Result.success();
+    }
+
+    @GetMapping("/new_notification")
+    public Result getNewNotificationTest(){
+        notificationService.save(15,1,1,"COMMENT","他说你写的不错！");
         return Result.success();
     }
 }

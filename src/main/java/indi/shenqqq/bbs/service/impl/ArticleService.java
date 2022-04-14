@@ -86,7 +86,7 @@ public class ArticleService implements IArticleService {
     public void delete(Article article) {
         Integer id = article.getId();
         // 删除相关通知
-        articleTagService.selectByArticleId(article.getId());
+        articleTagService.deleteByArticleId(article.getId());
         collectService.deleteByArticleId(article.getId());
         commentService.deleteByArticleId(article.getId());
         articleMapper.deleteById(id);

@@ -26,7 +26,7 @@ import java.util.Random;
  * @Description XX
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class GenerateRandomData {
 
     @Resource

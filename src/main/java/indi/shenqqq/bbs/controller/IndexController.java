@@ -2,17 +2,19 @@ package indi.shenqqq.bbs.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import indi.shenqqq.bbs.config.Config;
+import indi.shenqqq.bbs.enums.FilePurpose;
+import indi.shenqqq.bbs.enums.FileSuffix;
 import indi.shenqqq.bbs.exception.Results;
 import indi.shenqqq.bbs.model.Tag;
 import indi.shenqqq.bbs.model.User;
 import indi.shenqqq.bbs.model.dto.Result;
 import indi.shenqqq.bbs.service.IArticleService;
-import indi.shenqqq.bbs.service.IArticleTagService;
 import indi.shenqqq.bbs.service.ITagService;
 import indi.shenqqq.bbs.service.IUserService;
 import indi.shenqqq.bbs.utils.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -102,11 +104,11 @@ public class IndexController extends BaseController {
             String url;
             MultipartFile file = files[i];
             String suffix = "." + Objects.requireNonNull(file.getContentType()).split("/")[1];
-            if (!Arrays.asList(".jpg", ".png", ".gif", ".jpeg", ".mp4").contains(suffix.toLowerCase())) {
+            if (!Arrays.asList(FileSuffix.valueArr()).contains(suffix.toLowerCase())) {
                 return Result.error(319, "第[" + (i + 1) + "]个文件异常: " + "文件格式不正确,请确保上传文件是jpg,png,gif,jpeg,mp4格式");
             }
             long size = file.getSize();
-            if (type.equalsIgnoreCase("video")) {
+            if (type.equalsIgnoreCase(FilePurpose.video.toString())) {
                 if (size > uploadVideoSizeLimit * 1024 * 1024) {
                     return Result.error(319, "第[" + (i + 1) + "]个文件异常: " + "文件太大了，请上传文件大小在 " + uploadVideoSizeLimit + "MB 以内");
                 }
@@ -115,7 +117,7 @@ public class IndexController extends BaseController {
                     return Result.error(319, "第[" + (i + 1) + "]个文件异常: " + "文件太大了，请上传文件大小在 " + uploadImageSizeLimit + "MB 以内");
                 }
             }
-            if (type.equalsIgnoreCase("avatar")) { // 上传头像
+            if (type.equalsIgnoreCase(FilePurpose.avatar.toString())) { // 上传头像
                 // 拿到上传后访问的url
                 url = fileUtil.upload(file, "avatar", "avatar/" + user.getUsername());
                 if (url != null) {
@@ -124,11 +126,11 @@ public class IndexController extends BaseController {
                     userService.update(user1);
                     if (session != null) session.setAttribute("_user", user1);
                 }
-            } else if (type.equalsIgnoreCase("article")) { // 发帖上传图片
+            } else if (type.equalsIgnoreCase(FilePurpose.article.toString())) {
                 url = fileUtil.upload(file, null, "article/" + user.getUsername());
-            } else if (type.equalsIgnoreCase("headImg")) { // 发帖上传图片
+            } else if (type.equalsIgnoreCase(FilePurpose.headImg.toString())) {
                 url = fileUtil.upload(file, null, "article/" + user.getUsername() + "/headImg/");
-            } else if (type.equalsIgnoreCase("video")) { // 视频上传
+            } else if (type.equalsIgnoreCase(FilePurpose.video.toString())) {
                 url = fileUtil.upload(file, null, "video/" + user.getUsername());
             } else {
                 return Result.error(319, "第[" + (i + 1) + "]个文件异常: " + "上传文件类型不在处理范围内");
@@ -143,7 +145,7 @@ public class IndexController extends BaseController {
     }
 
     @GetMapping("/config")
-    public Result config() {
+    public Result config(HttpServletRequest request) {
         List<Tag> tagList = tagService.selectTagByArticleCount(Config.INDEX_TAG_NUM);
         List<Map<String,String>> list = new LinkedList<>();
         for (Tag tag : tagList) {
@@ -152,7 +154,7 @@ public class IndexController extends BaseController {
             map.put("title" ,tag.getName());
             list.add(map);
         }
-        System.out.println(JsonUtils.objectToJson(list));
+        log.info("来自{}的用户进入了界面，加载了标签：{}",IPUtils.getIpAddr(request),JsonUtils.objectToJson(list));
         return success(list);
     }
 

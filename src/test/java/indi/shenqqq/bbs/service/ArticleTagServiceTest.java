@@ -15,7 +15,7 @@ import javax.annotation.Resource;
  * @Description XX
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ArticleTagServiceTest {
 
     @Resource

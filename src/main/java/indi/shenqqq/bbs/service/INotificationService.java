@@ -1,5 +1,7 @@
 package indi.shenqqq.bbs.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +13,8 @@ import java.util.Map;
 public interface INotificationService {
     // 查询消息
     List<Map<String, Object>> selectByUserId(Integer userId, Boolean read, Integer limit);
+
+    Page<Map<String, Object>> selectAll(int pageNo, int pageSize,int userId);
 
     void markRead(Integer userId);
 

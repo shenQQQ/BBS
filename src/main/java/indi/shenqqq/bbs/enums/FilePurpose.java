@@ -6,4 +6,5 @@ package indi.shenqqq.bbs.enums;
  * @Description XX
  */
 public enum FilePurpose {
+    video,avatar,headImg,article
 }
