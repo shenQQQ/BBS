@@ -1,9 +1,13 @@
 package indi.shenqqq.bbs.utils;
 
+import indi.shenqqq.bbs.service.ISystemConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,10 +23,20 @@ import java.util.UUID;
  * @Date 2022/3/8 11:12
  * @Description XX
  */
+@Component
 public class FileUtils {
+
+    @Resource
+    ISystemConfigService systemConfigService;
+
     private final Logger log = LoggerFactory.getLogger(FileUtils.class);
-    private static String static_url = "D:\\JAVA\\BBS\\static\\upload\\";
-    private static String url_pre = "http://localhost:8080/static/upload/";
+    private static String static_url;
+    private static String url_pre;
+
+    private void init() {
+        static_url = systemConfigService.selectByKey("file_upload_path");
+        url_pre = systemConfigService.selectByKey("file_upload_address");
+    }
 
     public static String getFileMD5(InputStream in) {
         byte[] buffer = new byte[1024];
@@ -57,6 +71,7 @@ public class FileUtils {
      * @return
      */
     public String upload(MultipartFile file, String fileName, String customPath) {
+        init();
         try {
             if (file == null || file.isEmpty()) return null;
 
@@ -72,7 +87,9 @@ public class FileUtils {
             if (file1.exists()) {
                 file1.delete();
             }
-
+            System.out.println(static_url);
+            System.out.println(file);
+            System.out.println(file1);
             file.transferTo(file1);
 
             // 上传成功后返回访问路径

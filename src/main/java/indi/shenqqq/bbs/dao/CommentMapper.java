@@ -17,4 +17,8 @@ public interface CommentMapper extends BaseMapper<Comment> {
 
     Page<Map<String, Object>> selectByUserId(Page<Map<String, Object>> iPage, @Param("userId") Integer userId);
 
+    Page<Map<String, Object>> selectAllComment(Page<Map<String, Object>> iPage);
+
+    Page<Map<String, Object>> search(Page<Map<String, Object>> iPage, @Param("keyword") String keyword);
+
 }

@@ -29,7 +29,13 @@ public interface ITagService {
 
     Page<Map<String, Object>> selectArticleByTagId(Integer tagId, Integer pageNo);
 
+    Page<Map<String, Object>> selectAllTag(Integer pageNo);
+
+    Page<Map<String, Object>> search(Integer pageNo,String keyword);
+
     IPage<Tag> selectAll(Integer pageNo, Integer pageSize);
+
+    void delete(Integer id);
 
     void update(Tag tag);
 }

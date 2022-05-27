@@ -28,4 +28,8 @@ public class ArticleServicePointcut {
     @Pointcut("execution( public * indi.shenqqq.bbs.service.IArticleService.deleteByUserId(..))")
     public void deleteByUserId() {
     }
+
+    @Pointcut("execution( public * indi.shenqqq.bbs.service.IArticleService.search(..))")
+    public void search() {
+    }
 }

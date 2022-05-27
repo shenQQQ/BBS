@@ -19,6 +19,10 @@ public interface TagMapper extends BaseMapper<Tag> {
 
     Page<Map<String, Object>> selectArticleByTagId(Page<Map<String, Object>> iPage, @Param("tagId") Integer tagId);
 
+    Page<Map<String, Object>> selectAllTag(Page<Map<String, Object>> iPage);
+
+    Page<Map<String, Object>> search(Page<Map<String, Object>> iPage, @Param("keyword") String keyword);
+
     List<Tag> selectTagByArticleCount(@Param("topTagNum") Integer topTagNum);
 
 }

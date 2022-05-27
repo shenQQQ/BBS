@@ -3,13 +3,36 @@
 <mapper namespace="indi.shenqqq.bbs.dao.CommentMapper">
 
     <select id="selectByUserId" resultType="map">
-        select c.*, u.username as topicUsername, uu.username as commentUsername, a.title, a.id as topicId
+        select c.*, u.username as articleUsername, uu.username as commentUsername, a.title, a.id as articleId
         from comment c
                  left join article a on a.id = c.article_id
                  left join user u on a.user_id = u.id
                  left join user uu on c.user_id = uu.id
         where c.user_id = #{userId}
         order by a.in_time desc
+    </select>
+
+    <select id="selectAllComment" resultType="map">
+        select c.*, u.username, a.title, u.id as user_id, a.id as article_id
+        from comment c
+                 left join user u on c.user_id = u.id
+                 left join article a on c.article_id = a.id
+        order by c.in_time desc
+    </select>
+
+    <select id="search" resultType="map">
+        select c.*, u.username, a.title, u.id as user_id, a.id as article_id
+        from comment c
+        left join user u on c.user_id = u.id
+        left join article a on c.article_id = a.id
+        <where>
+            c.content like concat(concat('%',#{keyword}),'%')
+            or a.title like concat(concat('%',#{keyword}),'%')
+            or u.username like concat(concat('%',#{keyword}),'%')
+            or c.id
+            = #{keyword}
+        </where>
+        order by c.in_time desc
     </select>
 
 </mapper>

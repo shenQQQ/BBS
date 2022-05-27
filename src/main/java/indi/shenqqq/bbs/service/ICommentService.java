@@ -31,4 +31,8 @@ public interface ICommentService {
 
     Page<Map<String, Object>> selectByUserId(Integer userId, Integer pageNo, Integer pageSize);
 
+    Page<Map<String, Object>> selectAll(Integer pageNo, Integer pageSize);
+
+    Page<Map<String, Object>> search(Integer pageNo, Integer pageSize,String keyword);
+
 }

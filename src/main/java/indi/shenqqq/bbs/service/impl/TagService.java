@@ -110,12 +110,30 @@ public class TagService implements ITagService {
         return tagMapper.selectArticleByTagId(iPage, tagId);
     }
 
+    @Override
+    public Page<Map<String, Object>> selectAllTag(Integer pageNo) {
+        Page<Map<String, Object>> iPage = new Page<>(pageNo, 10);
+        return tagMapper.selectAllTag(iPage);
+    }
+
+    @Override
+    public Page<Map<String, Object>> search(Integer pageNo, String keyword) {
+        Page<Map<String, Object>> iPage = new Page<>(pageNo, 10);
+        return tagMapper.search(iPage,keyword);
+    }
+
     // 查询标签列表
     @Override
     public IPage<Tag> selectAll(Integer pageNo, Integer pageSize) {
         IPage<Tag> iPage = new Page<>(pageNo, pageSize == null ? Config.TAG_PAGE_SIZE : pageSize);
         QueryWrapper<Tag> wrapper = new QueryWrapper<>();
         return tagMapper.selectPage(iPage, wrapper);
+    }
+
+    @Override
+    public void delete(Integer id) {
+        articleTagService.deleteByTagId(id);
+        tagMapper.deleteById(id);
     }
 
     @Override

@@ -2,6 +2,7 @@ package indi.shenqqq.bbs.service;
 
 import indi.shenqqq.bbs.model.ArticleTag;
 import indi.shenqqq.bbs.model.Tag;
+import io.swagger.models.auth.In;
 
 import java.util.List;
 
@@ -20,4 +21,6 @@ public interface IArticleTagService {
     void deleteByArticleId(Integer id);
 
     void updateTagByArticleId(Integer articleId, List<Tag> tagList);
+
+    void deleteByTagId(Integer id);
 }

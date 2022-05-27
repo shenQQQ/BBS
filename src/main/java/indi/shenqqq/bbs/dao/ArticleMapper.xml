@@ -23,7 +23,7 @@
         from article a
         left join user u on a.user_id = u.id
         <where>
-            a.title like concat(concat('%',#{keyword}),'%') or a.content like concat(concat('%',#{keyword}),'%')
+            a.title like concat(concat('%',#{keyword}),'%') or a.content like concat(concat('%',#{keyword}),'%') or a.id = #{keyword}
         </where>
         order by a.in_time desc
     </select>

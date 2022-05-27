@@ -4,9 +4,14 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import indi.shenqqq.bbs.dao.NotificationMapper;
 import indi.shenqqq.bbs.model.Notification;
+import indi.shenqqq.bbs.model.User;
 import indi.shenqqq.bbs.model.dto.WebSocketMessage;
+import indi.shenqqq.bbs.mq.Consumer;
+import indi.shenqqq.bbs.mq.Producer;
 import indi.shenqqq.bbs.service.INotificationService;
+import indi.shenqqq.bbs.service.IUserService;
 import indi.shenqqq.bbs.socket.WebSocket;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +32,12 @@ public class NotificationService implements INotificationService {
 
     @Resource
     private NotificationMapper notificationMapper;
+    @Resource
+    private IUserService userService;
+    @Resource
+    private Producer producer;
+    @Resource
+    private Consumer consumer;
 
     @Override
     public List<Map<String, Object>> selectByUserId(Integer userId, Boolean read, Integer limit) {
@@ -35,16 +46,16 @@ public class NotificationService implements INotificationService {
     }
 
     @Override
-    public Page<Map<String, Object>> selectAll(int pageNo, int pageSize,int userId) {
+    public Page<Map<String, Object>> selectAll(int pageNo, int pageSize, int userId) {
         Page<Map<String, Object>> page = new Page<>(pageNo, pageSize);
-        page = notificationMapper.selectAll(page,userId);
+        page = notificationMapper.selectAll(page, userId);
         return page;
     }
 
     @Override
     public void markRead(Integer userId) {
         notificationMapper.updateNotificationStatus(userId);
-        WebSocket.sendMessage(userId,new WebSocketMessage("notification_notread",0));
+        WebSocket.sendMessage(userId, new WebSocketMessage("notification_notread", 0));
     }
 
     @Override
@@ -78,4 +89,11 @@ public class NotificationService implements INotificationService {
         notification.setIsread(false);
         notificationMapper.insert(notification);
     }
+
+    @Override
+    public void broadcast(String content) {
+        int count = producer.broadcast(content);
+        consumer.receive(count);
+    }
+
 }

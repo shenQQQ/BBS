@@ -1,28 +1,29 @@
 package indi.shenqqq.bbs;
 
+import indi.shenqqq.bbs.service.IRecommendService;
 import indi.shenqqq.bbs.utils.JsonUtils;
+import io.swagger.models.auth.In;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.annotation.Resource;
 import javax.sql.DataSource;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class BbsApplicationTests {
 
+    @Resource
+    IRecommendService service;
+
     @Test
-    void contextLoads() throws SQLException {
-        List<Map<String,String>> list = new LinkedList<>();
-        Map<String,String> map1 = new LinkedHashMap<>();
-        map1.put("key","/game");
-        map1.put("title","游戏");
-        Map<String,String> map2 = new LinkedHashMap<>();
-        map2.put("key","/user");
-        map2.put("title","用户管理");
-        list.add(map1);
-        list.add(map2);
-        System.out.println(JsonUtils.objectToJson(list));
+    void contextLoads() throws SQLException, IOException {
+        InetAddress inetAddress  = InetAddress.getByName("119.3.8.118");
+        System.out.println(inetAddress.isReachable(500));
     }
 
 }

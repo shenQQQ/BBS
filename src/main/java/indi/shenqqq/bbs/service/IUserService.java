@@ -1,10 +1,12 @@
 package indi.shenqqq.bbs.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import indi.shenqqq.bbs.model.User;
 
 import javax.jws.soap.SOAPBinding;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author Shen Qi
@@ -19,6 +21,10 @@ public interface IUserService {
     User selectByEmail(String email);
 
     User selectById(Integer id);
+
+    Page<Map<String, Object>> selectAll(int pageNo, int pageSize);
+
+    Page<Map<String, Object>> search(int pageNo, int pageSize, String keyword);
 
     List<User> selectTopList(Integer limit);
 

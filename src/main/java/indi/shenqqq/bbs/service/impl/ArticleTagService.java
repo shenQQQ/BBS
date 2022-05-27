@@ -60,5 +60,12 @@ public class ArticleTagService implements IArticleTagService {
         this.insertArticleTag(articleId,tagList);
     }
 
+    @Override
+    public void deleteByTagId(Integer id) {
+        QueryWrapper<ArticleTag> wrapper = new QueryWrapper<>();
+        wrapper.lambda().eq(ArticleTag::getTagId, id);
+        articleTagMapper.delete(wrapper);
+    }
+
 
 }

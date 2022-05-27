@@ -11,10 +11,10 @@ import org.springframework.stereotype.Component;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * @Author Shen Qi
  * @Date 2022/4/13 11:02
@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class WebSocket {
 
-    private final static AtomicInteger online = new AtomicInteger(0);
+    public final static AtomicInteger online = new AtomicInteger(0);
     public static Map<Session, UserWithWebSocketVO> webSockets = new ConcurrentHashMap<>();
 
     @OnOpen
@@ -74,6 +74,9 @@ public class WebSocket {
     public static void fetchNotReadCount(WebSocketMessage message, Session session) {
         try {
             INotificationService notificationService = SpringContextUtils.getBean(NotificationService.class);
+            if (session == null) {
+                return;
+            }
             long countNotRead = notificationService.countNotRead(WebSocket.webSockets.get(session).getUserId());
             session.getBasicRemote().sendObject(new WebSocketMessage("notification_notread", countNotRead));
         } catch (IOException | EncodeException e) {
@@ -91,13 +94,23 @@ public class WebSocket {
             if (session != null) {
                 session.getBasicRemote().sendObject(message);
                 log.info("发送成功");
-            }
-            else{
+            } else {
                 log.info("没法出去");
             }
-            fetchNotReadCount(message,session);
+            fetchNotReadCount(message, session);
         } catch (IOException | EncodeException e) {
             log.error("发送ws消息失败, 异常信息：{}", e.getMessage());
+        }
+    }
+
+    public static void onlineBroadcast(String message)  {
+        try {
+            for (Session session : new ArrayList<>(webSockets.keySet())) {
+                WebSocketMessage webSocketMessage = new WebSocketMessage("broadcast", (Object) message);
+                session.getBasicRemote().sendObject(webSocketMessage);
+            }
+        } catch (IOException | EncodeException e) {
+            e.printStackTrace();
         }
     }
 

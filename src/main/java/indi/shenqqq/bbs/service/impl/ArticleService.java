@@ -6,11 +6,13 @@ import indi.shenqqq.bbs.dao.ArticleMapper;
 import indi.shenqqq.bbs.model.Article;
 import indi.shenqqq.bbs.model.User;
 import indi.shenqqq.bbs.service.IArticleService;
+import org.apache.kafka.common.internals.Topic;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,6 +34,8 @@ public class ArticleService implements IArticleService {
     private CollectService collectService;
     @Resource
     private ArticleTagService articleTagService;
+    @Resource
+    private IndexService indexService;
 
     @Override
     public Article selectById(int id) {
@@ -74,11 +78,13 @@ public class ArticleService implements IArticleService {
         article.setView(1);
         article.setCollectCount(0);
         article.setCommentCount(0);
+        indexService.indexArticle(String.valueOf(article.getId()), article.getTitle(), article.getContent(),article.getHeadImg());
         articleMapper.insert(article);
     }
 
     @Override
     public void update(Article article) {
+        indexService.indexArticle(String.valueOf(article.getId()), article.getTitle(), article.getContent(),article.getHeadImg());
         articleMapper.updateById(article);
     }
 
@@ -89,8 +95,26 @@ public class ArticleService implements IArticleService {
         articleTagService.deleteByArticleId(article.getId());
         collectService.deleteByArticleId(article.getId());
         commentService.deleteByArticleId(article.getId());
+        indexService.deleteArticleIndex(String.valueOf(article.getId()));
         articleMapper.deleteById(id);
     }
+
+    // 根据用户id删除帖子
+    @Override
+    public void deleteByUserId(Integer userId) {
+        QueryWrapper<Article> wrapper = new QueryWrapper<>();
+        wrapper.lambda().eq(Article::getUserId, userId);
+        List<Article> articles = articleMapper.selectList(wrapper);
+        articles.forEach(article -> {
+            indexService.deleteArticleIndex(String.valueOf(article.getId()));
+            commentService.deleteByArticleId(article.getId());
+            collectService.deleteByArticleId(article.getId());
+            articleTagService.deleteByArticleId(article.getId());
+        });
+        //删除话题
+        articleMapper.delete(wrapper);
+    }
+
 
     @Override
     public int countAll() {

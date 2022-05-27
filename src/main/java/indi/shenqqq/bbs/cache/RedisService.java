@@ -1,13 +1,19 @@
-package indi.shenqqq.bbs.plugin;
+package indi.shenqqq.bbs.cache;
 
 import indi.shenqqq.bbs.config.Config;
+import indi.shenqqq.bbs.service.ISystemConfigService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.params.SetParams;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 
 /**
  * @Author Shen Qi
@@ -18,12 +24,17 @@ import redis.clients.jedis.params.SetParams;
 @Slf4j
 public class RedisService {
 
-    static {
-        String host = Config.REDIS_HOST;
-        String port = Config.REDIS_PORT;
-        String password = StringUtils.isEmpty(Config.REDIS_PASSWORD) ? null : Config.REDIS_PASSWORD;
-        String database = Config.REDIS_DATABASE;
-        String timeout = Config.REDIS_TIMEOUT;
+    @Resource
+    ISystemConfigService systemConfigService;
+
+    @PostConstruct
+    @DependsOn("flywayConfig")
+    public void RedisService(){
+        String host = systemConfigService.selectByKey("redis_host");
+        String port = systemConfigService.selectByKey("redis_port");
+        String password = StringUtils.isEmpty(systemConfigService.selectByKey("redis_password")) ? null : systemConfigService.selectByKey("redis_password");
+        String database = systemConfigService.selectByKey("redis_database");
+        String timeout = systemConfigService.selectByKey("redis_timeout");
 
         if (!(!StringUtils.isEmpty(host) && !StringUtils.isEmpty(port) && !StringUtils.isEmpty(database) && !StringUtils
                 .isEmpty(timeout))) {
@@ -40,11 +51,11 @@ public class RedisService {
     public JedisPool instance() {
         try {
             if (this.jedisPool != null) return this.jedisPool;
-            String host = Config.REDIS_HOST;
-            String port = Config.REDIS_PORT;
-            String password = StringUtils.isEmpty(Config.REDIS_PASSWORD) ? null : Config.REDIS_PASSWORD;
-            String database = Config.REDIS_DATABASE;
-            String timeout = Config.REDIS_TIMEOUT;
+            String host = systemConfigService.selectByKey("redis_host");
+            String port = systemConfigService.selectByKey("redis_port");
+            String password = StringUtils.isEmpty(systemConfigService.selectByKey("redis_password")) ? null : systemConfigService.selectByKey("redis_password");
+            String database = systemConfigService.selectByKey("redis_database");
+            String timeout = systemConfigService.selectByKey("redis_timeout");
 
             if (!this.isRedisConfig()) {
                 return null;
@@ -72,10 +83,10 @@ public class RedisService {
     }
 
     public boolean isRedisConfig() {
-        String host = Config.REDIS_HOST;
-        String port = Config.REDIS_PORT;
-        String database = Config.REDIS_DATABASE;
-        String timeout = Config.REDIS_TIMEOUT;
+        String host = systemConfigService.selectByKey("redis_host");
+        String port = systemConfigService.selectByKey("redis_port");
+        String database = systemConfigService.selectByKey("redis_database");
+        String timeout = systemConfigService.selectByKey("redis_timeout");
         return !StringUtils.isEmpty(host) && !StringUtils.isEmpty(port) && !StringUtils.isEmpty(database) && !StringUtils
                 .isEmpty(timeout);
     }

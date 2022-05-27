@@ -27,4 +27,6 @@ public interface INotificationService {
 
     void save(Integer userId, Integer targetUserId, Integer articleId, String action, String content);
 
+    void broadcast(String content);
+
 }

@@ -1,5 +1,6 @@
 package indi.shenqqq.bbs.config;
 
+import indi.shenqqq.bbs.service.ISystemConfigService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -11,6 +12,8 @@ import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 
+import javax.annotation.Resource;
+
 /**
  * @Author Shen Qi
  * @Date 2022/4/5 16:20
@@ -21,6 +24,10 @@ import springfox.documentation.spring.web.plugins.Docket;
 @Configuration
 @EnableOpenApi
 public class SwaggerConfig {
+
+    @Resource
+    ISystemConfigService systemConfigService;
+
     @Bean
     public Docket docket() {
         return new Docket(DocumentationType.OAS_30)
@@ -33,10 +40,13 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title(Config.PROJECT_NAME)
-                .description(Config.PROJECT_DESCRIPTION)
-                .contact(new Contact(Config.AUTHOR_NAME, Config.AUTHOR_WEBSITE, Config.AUTHOR_EMAIL))
-                .version(Config.PROJECT_VERSION)
+                .title(systemConfigService.selectByKey("project_name"))
+                .description(systemConfigService.selectByKey("project_description"))
+                .contact(new Contact(
+                        systemConfigService.selectByKey("owner"),
+                        systemConfigService.selectByKey("owner_website"),
+                        systemConfigService.selectByKey("owner_email")))
+                .version(systemConfigService.selectByKey("project_version"))
                 .build();
     }
 }

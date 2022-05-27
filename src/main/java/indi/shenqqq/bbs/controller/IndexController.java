@@ -8,13 +8,10 @@ import indi.shenqqq.bbs.exception.Results;
 import indi.shenqqq.bbs.model.Tag;
 import indi.shenqqq.bbs.model.User;
 import indi.shenqqq.bbs.model.dto.Result;
-import indi.shenqqq.bbs.service.IArticleService;
-import indi.shenqqq.bbs.service.ITagService;
-import indi.shenqqq.bbs.service.IUserService;
+import indi.shenqqq.bbs.service.*;
 import indi.shenqqq.bbs.utils.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -44,6 +41,23 @@ public class IndexController extends BaseController {
     private ITagService tagService;
     @Resource
     private IArticleService articleService;
+    @Resource
+    private ISystemConfigService systemConfigService;
+    @Resource
+    private IAdService adService;
+    @Resource
+    private IRecommendService recommendService;
+    @Resource
+    private FileUtils fileUtil;
+    @Resource
+    private IIndexService indexService;
+
+    @GetMapping("/index_all")
+    @ResponseBody
+    public Result index_all() {
+        indexService.indexAllArticle();
+        return success();
+    }
 
     @PostMapping("/signup")
     public Result signup(@RequestBody Map<String, Object> body, HttpSession session) {
@@ -93,13 +107,12 @@ public class IndexController extends BaseController {
     @PostMapping("/upload")
     @ResponseBody
     public Result upload(@RequestParam("file") MultipartFile[] files, String type, HttpSession session) {
-        FileUtils fileUtil = new FileUtils();
         User user = getUserFromToken(true);
         Map<String, Object> resultMap = new HashMap<>();
         List<String> urls = new ArrayList<>();
-        long uploadVideoSizeLimit = Config.MAX_UPLOAD_VIDEO_FILE_SIZE;
-        long uploadImageSizeLimit = Config.MAX_UPLOAD_IMAGE_FILE_SIZE;
-        if (files.length > Config.MAX_UPLOAD_FILE_NUM) return Results.TOO_MANY_FILE;
+        long uploadVideoSizeLimit = Long.parseLong(systemConfigService.selectByKey("max_upload_video_size"));
+        long uploadImageSizeLimit = Long.parseLong(systemConfigService.selectByKey("max_upload_image_size"));
+        if (files.length > Integer.parseInt(systemConfigService.selectByKey("max_upload_file_num"))) return Results.TOO_MANY_FILE;
         for (int i = 0; i < files.length; i++) {
             String url;
             MultipartFile file = files[i];
@@ -132,6 +145,8 @@ public class IndexController extends BaseController {
                 url = fileUtil.upload(file, null, "article/" + user.getUsername() + "/headImg/");
             } else if (type.equalsIgnoreCase(FilePurpose.video.toString())) {
                 url = fileUtil.upload(file, null, "video/" + user.getUsername());
+            } else if (type.equalsIgnoreCase(FilePurpose.ad.toString())) {
+                url = fileUtil.upload(file, null, "ad/");
             } else {
                 return Result.error(319, "第[" + (i + 1) + "]个文件异常: " + "上传文件类型不在处理范围内");
             }
@@ -147,15 +162,29 @@ public class IndexController extends BaseController {
     @GetMapping("/config")
     public Result config(HttpServletRequest request) {
         List<Tag> tagList = tagService.selectTagByArticleCount(Config.INDEX_TAG_NUM);
-        List<Map<String,String>> list = new LinkedList<>();
+        List<Map<String, String>> list = new LinkedList<>();
         for (Tag tag : tagList) {
-            Map<String,String> map = new HashMap<>();
-            map.put("key","/tag/" + tag.getId());
-            map.put("title" ,tag.getName());
+            Map<String, String> map = new HashMap<>();
+            map.put("key", "/tag/" + tag.getId());
+            map.put("title", tag.getName());
             list.add(map);
         }
-        log.info("来自{}的用户进入了界面，加载了标签：{}",IPUtils.getIpAddr(request),JsonUtils.objectToJson(list));
+        log.info("来自{}的用户进入了界面，加载了标签：{}", IPUtils.getIpAddr(request), JsonUtils.objectToJson(list));
         return success(list);
+    }
+
+    @GetMapping("/systemconfig")
+    public Result systemConfig() {
+        Map<String ,String> map = new HashMap<>();
+        map.put("project_name",systemConfigService.selectByKey("project_name"));
+        map.put("server_address",systemConfigService.selectByKey("server_address"));
+        map.put("platform_address",systemConfigService.selectByKey("platform_address"));
+        map.put("max_upload_file_num",systemConfigService.selectByKey("max_upload_file_num"));
+        map.put("max_upload_image_size",systemConfigService.selectByKey("max_upload_image_size"));
+        map.put("max_upload_video_size",systemConfigService.selectByKey("max_upload_video_size"));
+        map.put("file_upload_timeout",systemConfigService.selectByKey("file_upload_timeout"));
+        map.put("websocket_address",systemConfigService.selectByKey("websocket_address"));
+        return success(map);
     }
 
     @GetMapping("/tag/{id}")
@@ -179,9 +208,19 @@ public class IndexController extends BaseController {
         pageSize = pageSize == 0 ? Config.USER_PAGE_ARTICLE_NUM : pageSize;
         if (userService.selectById(userId) == null) return Results.USER_DONT_EXISTS;
         User user = userService.selectById(userId);
-        Map<String ,Object> result = new HashMap<>();
-        result.put("user",user);
-        result.put("article",articleService.selectByUserId(userId, pageNo, pageSize));
+        Map<String, Object> result = new HashMap<>();
+        result.put("user", user);
+        result.put("article", articleService.selectByUserId(userId, pageNo, pageSize));
         return success(result);
+    }
+
+    @GetMapping("/ad")
+    public Result ad(){
+        return success(adService.selectAd());
+    }
+
+    @GetMapping("/recommend")
+    public Result recommend(){
+        return success(recommendService.selectVo());
     }
 }

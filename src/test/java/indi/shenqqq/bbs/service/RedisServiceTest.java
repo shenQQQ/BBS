@@ -1,6 +1,6 @@
 package indi.shenqqq.bbs.service;
 
-import indi.shenqqq.bbs.plugin.RedisService;
+import indi.shenqqq.bbs.cache.RedisService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;

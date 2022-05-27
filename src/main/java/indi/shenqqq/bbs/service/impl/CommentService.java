@@ -103,4 +103,15 @@ public class CommentService implements ICommentService {
         Page<Map<String, Object>> page = commentMapper.selectByUserId(iPage, userId);
         return page;
     }
+
+    @Override
+    public Page<Map<String, Object>> selectAll(Integer pageNo, Integer pageSize) {
+        Page<Map<String, Object>> iPage = new Page<>(pageNo, 10);
+        return commentMapper.selectAllComment(iPage);
+    }
+
+    @Override
+    public Page<Map<String, Object>> search(Integer pageNo, Integer pageSize, String keyword) {
+        return commentMapper.search(new Page<Map<String, Object>>(pageNo,pageSize),keyword);
+    }
 }

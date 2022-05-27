@@ -12,10 +12,26 @@
 
     <select id="selectTagByArticleCount" resultType="indi.shenqqq.bbs.model.Tag">
         SELECT tag.*
-        FROM article_tag
-                 AT LEFT JOIN tag ON tag.id = at.tag_id
+        FROM article_tag at
+                 LEFT JOIN tag ON tag.id = at.tag_id
         GROUP BY tag_id
         ORDER BY COUNT(*) DESC
         limit #{topTagNum}
+    </select>
+
+    <select id="selectAllTag" resultType="map">
+        SELECT tag.*, COUNT(*) AS article_num
+        FROM article_tag at
+                 LEFT JOIN tag ON tag.id = at.tag_id
+        GROUP BY tag_id
+    </select>
+
+    <select id="search" resultType="map">
+        SELECT tag.*, COUNT(*) AS article_num
+        FROM article_tag at
+                 LEFT JOIN tag ON tag.id = at.tag_id
+        where tag.name like concat(concat('%', #{keyword}), '%')
+           or tag.id = #{keyword}
+        GROUP BY tag_id
     </select>
 </mapper>
